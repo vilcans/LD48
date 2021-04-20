@@ -1,0 +1,6 @@
+data.o
+data.o.lst
+main.bin
+main.o
+main.o.lst
+main.z80

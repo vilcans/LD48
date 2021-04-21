@@ -1,5 +1,7 @@
 include ../common/common.mk
 
+DEPENDENCIES ?=
+
 MODULE_OBJS = $(SOURCES:.s=.o)
 OBJS = $(MODULE_OBJS)
 

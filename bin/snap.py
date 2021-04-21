@@ -62,15 +62,17 @@ def compress(data):
 
     See format at http://www.worldofspectrum.org/faq/reference/z80format.htm
     """
-    compressed = compress_re.sub(_compress_replace, data.decode('latin-1')).encode('latin-1')
+    compressed = compress_re.sub(
+        _compress_replace, data.decode('latin-1')).encode('latin-1')
     return compressed
     # 48k z80 format would append 00 ED ED 00 here
 
 
-def write_header(out, pc=0x0000):
+def write_header(out, s128, pc=0x0000):
     def write_bytes(*values):
         for v in values:
             out.write(struct.pack('B', v))
+
     def write_words(*values):
         for v in values:
             out.write(struct.pack('<H', v))
@@ -109,7 +111,7 @@ def write_header(out, pc=0x0000):
     # The final byte (marked '**') is present only if the word at position 30 is 55.
     write_words(55)  # version 3
     write_words(pc)  # PC
-    write_bytes(4)              # Spectrum 128
+    write_bytes(4 if s128 else 0)
 
     # If in SamRam mode, bitwise state of 74ls259.
     # For example, bit 6=1 after an OUT 31,13 (=2*6+1)
@@ -175,7 +177,7 @@ def write_header(out, pc=0x0000):
     write_bytes(0)
 
 
-def create_snapshot(source_file, destination_file, start_address):
+def create_snapshot(source_file, destination_file, start_address, s128):
     # Fill lower memory with zeroes
     dump = b'\0' * start_address
     dump += open(source_file, 'rb').read()
@@ -192,12 +194,16 @@ def create_snapshot(source_file, destination_file, start_address):
     pages[2] = get_page(0x8000)
     pages[0] = get_page(0xc000)
 
-    #assert len(header) == 87
+    # assert len(header) == 87
 
     with open(destination_file, 'wb') as out:
-        write_header(out, pc=start_address)
+        write_header(out, s128, pc=start_address)
 
-        for page in range(8):
+        if s128:
+            included_pages = range(8)
+        else:
+            included_pages = [1, 2, 5]  # 4, 5, 8 in Z80 snapshot page numbers
+        for page in included_pages:
             z80page = page + 3
             compressed = compress(pages[page])
             # page header
@@ -213,15 +219,22 @@ def main():
         type=lambda v: int(v, 0),
         required=True,
         help='Start address of memory dump, hex (with 0x prefix) or decimal')
+    parser.add_argument(
+        '--machine', choices=('48', '128'),
+        default='48',
+        help='Machine type for snapshot'
+    )
     parser.add_argument('source',
-        help='File containing the memory dump')
+                        help='File containing the memory dump')
     parser.add_argument('destination',
-        help='File to write z80 snapshot to')
+                        help='File to write z80 snapshot to')
 
     args = parser.parse_args()
     create_snapshot(
         args.source, args.destination,
-        start_address=args.start)
+        start_address=args.start,
+        s128=args.machine == '128'
+    )
 
 
 if __name__ == '__main__':

@@ -26,4 +26,4 @@ ASM_FLAGS = \
 	$(VASM) $(ASM_FLAGS) -Fvobj -L $@.lst -o $@ $<
 
 %.z80: %.bin
-	python $(BIN_DIR)/snap.py --start='0x${MEM_BOTTOM}' $< $@
+	python $(BIN_DIR)/snap.py --machine=48 --start='0x${MEM_BOTTOM}' $< $@

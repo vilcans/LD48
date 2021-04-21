@@ -190,9 +190,14 @@ def create_snapshot(source_file, destination_file, start_address, s128):
         data = dump[address:address + 0x4000]
         return data + b'\0' * (0x4000 - len(data))
 
-    pages[5] = get_page(0x4000)
-    pages[2] = get_page(0x8000)
-    pages[0] = get_page(0xc000)
+    if s128:
+        pages[5] = get_page(0x4000)
+        pages[2] = get_page(0x8000)
+        pages[0] = get_page(0xc000)
+    else:
+        pages[5] = get_page(0x4000)
+        pages[1] = get_page(0x8000)
+        pages[2] = get_page(0xc000)
 
     # assert len(header) == 87
 

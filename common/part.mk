@@ -6,7 +6,7 @@ DEPENDENCIES ?=
 # Dependencies on generated assets.
 GENERATED ?=
 
-MODULE_OBJS = $(SOURCES:.s=.o)
+MODULE_OBJS = ../init/init.o $(SOURCES:.s=.o)
 OBJS = $(MODULE_OBJS)
 
 #MODULES = $(PART) $(ADDITIONAL_MODULES)

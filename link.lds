@@ -11,6 +11,7 @@ SECTIONS {
 
     .text : {
         . = 0x8000;
+        START_MAIN = .;  /* Assuming main code starts here */
         *.o(.text)
         ASSERT(. <= RAMTOP, "Out of RAM for text");
     }

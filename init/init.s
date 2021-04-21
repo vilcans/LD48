@@ -6,7 +6,10 @@
 
 handler_page = $fe
 handler = (handler_page<<8)|handler_page
+interrupt_routine = handler +1
 handler_end = handler + 3
+
+    EXTERN set_interrupt
 
     SECTION lowmem
 init:
@@ -22,28 +25,37 @@ init:
     ld hl,handler
     ld (hl),$c3  ; jp
     inc hl
-    ld (hl),<default_interrupt_handler
+    ld (hl),<default_interrupt_routine
     inc hl
-    ld (hl),>default_interrupt_handler
+    ld (hl),>default_interrupt_routine
 
     ld a,>vectors
     ld i,a
     im 2
     ei
 
-    ld hl,$5800
-loop:
-    inc (hl)
-    jp loop
+    jp START_MAIN
 
-    SECTION .text
-default_interrupt_handler:
+set_interrupt:
+; Change the interrupt routine to the one pointed to by HL.
+; It should push/pop as necessary and end with EI + RETI.
+    di
+    ld a,l
+    ld (interrupt_routine),a
+    ld a,h
+    ld (interrupt_routine+1),a
+    ei
+    ret
+
+default_interrupt_routine:
     push hl
     ld hl,$5821
     inc (hl)
     pop hl
     ei
     reti
+
+    ;SECTION .text
 
     SECTION .bss,"uR"
     ALIGN 8

@@ -13,6 +13,10 @@ all: $(MODULE).z80
 run: $(MODULE).z80
 	$(FUSE) --snapshot $(MODULE).z80
 
+# Run with debugger, stopping on write to address $1000
+debug: $(MODULE).z80
+	$(FUSE) --snapshot $(MODULE).z80 --debugger-command 'br write 0x1000'
+
 $(MODULE).bin: $(OBJS) ../link.lds
 	#$(MAKE) -C .. $(ADDITIONAL_MODULES)
 	$(VLINK) -M -Ttext 0x$(START_ADDRESS_HEX) -T../link.lds -brawbin2 -o $@ $(OBJS)

@@ -7,4 +7,5 @@ main:
     ld de,data
 loop:
     inc (hl)
+    ld ($1000),a
     jp loop

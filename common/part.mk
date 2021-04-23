@@ -1,13 +1,13 @@
 include ../common/common.mk
 
-# Dependencies on other modules. (Not implemented.)
+# Dependencies on other modules.
 DEPENDENCIES ?=
 
 # Dependencies on generated assets.
 GENERATED ?=
 
-MODULE_OBJS = ../init/init.o $(SOURCES:.s=.o)
-OBJS = $(MODULE_OBJS)
+MODULE_OBJS = $(SOURCES:.s=.o)
+OBJS = ../init/init.o $(MODULE_OBJS) $(DEPENDENCIES)
 
 #MODULES = $(PART) $(ADDITIONAL_MODULES)
 #OBJS = $(foreach mod,$(MODULES),../$(mod)/$(mod).o)

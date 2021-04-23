@@ -49,8 +49,8 @@ set_interrupt:
 
 default_interrupt_routine:
     push hl
-    ld hl,$5821
-    inc (hl)
+    ;ld hl,$5821
+    ;inc (hl)
     pop hl
     ei
     reti

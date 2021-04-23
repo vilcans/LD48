@@ -1,7 +1,8 @@
 SECTIONS {
     RAMTOP = 0xfefe;  /* must match handler_page in init.s */
     LOWMEM = 0x7800;  /* must match LOWMEM in common.mk */
-    HIGHMEM = 0x8000;
+    /* screentable hardcoded to be at $8000, $180 bytes */
+    HIGHMEM = 0x8180;
 
     lowmem LOWMEM : AT(LOWMEM) {
         *.o(lowmem)
@@ -10,7 +11,7 @@ SECTIONS {
     }
 
     .text : {
-        . = 0x8000;
+        . = HIGHMEM;
         START_MAIN = .;  /* Assuming main code starts here */
         *.o(.text)
         ASSERT(. <= RAMTOP, "Out of RAM for text");

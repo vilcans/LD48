@@ -1,6 +1,6 @@
 MODULE = sprite
 SOURCES = $(MODULE).s
-DEPENDENCIES =
+DEPENDENCIES = ../screentab/screentab.o
 GENERATED = circle.spr
 
 include ../common/part.mk

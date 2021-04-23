@@ -1,55 +1,127 @@
     SECTION .text
 
+    INCLUDE memory.inc
+
+sprite_height = 16
+
     ld hl,$5800
     ld de,$5801
     ld bc,$2ff
     ld (hl),17o
+    xor a
     ldir
+
+    ld hl,screen_addresses
+    ld de,$4000
+    call create_screen_table
 
     ld hl,sprite
     ld de,preshifted
     call preshift_sprite
 
-    ld de,preshifted
+each_frame:
+    ei
+    halt
+    di
     ld hl,$4000
-    ld c,8
-.each_char:
-    ld b,8
-.each_row:
-    ; byte 0
-    ld a,(de)
-    ld (hl),a
-    inc de
-    inc l
-    ; byte 1
-    ld a,(de)
-    ld (hl),a
-    inc de
-    inc l
-    ; byte 2
-    ld a,(de)
-    ld (hl),a
-    inc de
+    ld de,$4001
+    ld (hl),$55
+    ld bc,$17ff
+    ldir
 
-    dec l
-    dec l
-    inc h
-    djnz .each_row
-    ld a,h
-    add -8
-    ld h,a
-    ld a,l
-    add 32
+    ld a,6
+    out ($fe),a
+
+x_pos = $+1
+    ld a,-1 ; x
+    inc a
+    ld (x_pos),a
+    ld b,a  ; x
+
+y_pos = $+1
+    ld a,0 ; y
+    inc a
+    ld (y_pos),a
+    ld c,a
+    ld de,preshifted
+    call draw_sprite
+
+    ld a,0
+    out ($fe),a
+
+    jp each_frame
+
+draw_sprite:
+    ; B = x
+    ; C = y
+
+    ld (save_sp),sp
+
+    ; Get address in screen_addresses
+    ld a,c      ; y
+    add a
+    ld (set_sp),a  ; low byte
+    ld a,screen_addresses>>9
+    adc a
+    ld (set_sp+1),a  ; high byte
+
+    ; Horizontal bit position
+    ld a,b  ; x
+    and 7
+    ; mul by 3*sprite_height = 3*16
+    ld h,$00
     ld l,a
-    dec c
-    jr nz,.each_char
+    add a
+    add l     ; * 3
+    ld l,a
+    add hl,hl ; * 3 * 2
+    add hl,hl ; * 3 * 4
+    add hl,hl ; * 3 * 8
+    add hl,hl ; * 3 * 16
 
-freeze:
-    jr freeze
+    ; Add source address
+    add hl,de
+
+    ; Horizontal byte position
+    ld a,b  ; x
+    rra
+    rra
+    rra
+    and $1f     ; A = horizontal byte position
+    ld c,a   ; horizontal byte position
+
+set_sp = $+1
+    ld sp,screen_addresses
+
+    ; In loop: HL = source, DE = screen
+    ld b,sprite_height
+.each_row:
+    pop de
+    ld a,c    ; horizontal byte position
+    add e
+    ld e,a
+
+    ; byte 0
+    ld a,(hl)
+    ld (de),a
+    inc hl
+    inc e
+    ; byte 1
+    ld a,(hl)
+    ld (de),a
+    inc hl
+    inc e
+    ; byte 2
+    ld a,(hl)
+    ld (de),a
+    inc hl
+
+    djnz .each_row
+save_sp = $+1
+    ld sp,$0000
+    ret
 
 preshift_sprite:
-
-sprite_height = 16
 
     ld hl,sprite
     ld de,preshifted

@@ -27,7 +27,7 @@ def convert_tmx(infile):
         data = struct.unpack('<%dI' % (len(raw_data) / 4), raw_data)
 
         array_data = array('B')
-        for index, d in enumerate(data):
+        for d in data:
             d = d & 0x3fffffff   # bit 30 and 31 are mirror x, y flags
             if d >= firstgid:
                 array_data.append(d - firstgid)

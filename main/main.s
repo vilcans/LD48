@@ -9,6 +9,8 @@ extra_delay = 2
 ship_sprite_row = 12
 ship_sprite_y = ship_sprite_row * 8
 
+ship_start_x = map_width*4-8
+
 lives_column = map_width + 1
 lives_row = 21
 
@@ -51,6 +53,22 @@ main:
     ld de,ship_spr
     call draw_sprite
 
+start_life:
+    ld hl,spawn_reset_start
+    ld de,spawn_reset_start+1
+    ld (hl),0
+    ld bc,spawn_reset_end-spawn_reset_start-1
+    ldir
+    ld a,ship_start_x
+    ld (ship_sprite_x),a
+
+    border 0
+    ld bc,$0008  ; additional delay to avoid showing half-drawn tiles
+.delay:
+    djnz .delay  ; 3323 cycles
+    dec c
+    jr nz,.delay
+
 each_frame:
     border 6
     call prepare_finescroll
@@ -71,6 +89,10 @@ each_frame:
 
     border 4  ; movement
     call movement
+
+    ld a,(collisions)
+    or a
+    jp nz,kill
 
     border 0
 frame_counter = $+1
@@ -399,12 +421,35 @@ movement:
     ENDR
     ret
 
+kill:
+    call wait_frame
+    ld a,7
+    out ($fe),a
+
+    ld a,77o
+    call fill_attributes
+    call wait_frame
+    xor a
+    out ($fe),a
+
+    jp start_life
+
+fill_attributes:
+    ld hl,$5800
+    ld de,$5801
+    ld (hl),a
+    ld bc,$2ff
+    ldir
+    ret
+
+spawn_reset_start:
 scroll_pos: dw 0
 scroll_pos_fraction: db 0
 
-ship_sprite_x: db map_width*4-8
+ship_sprite_x: db 0
 
 velocity_y: dw 0
+spawn_reset_end:
 
 level:
     INCBIN "level.dat"

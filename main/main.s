@@ -14,7 +14,8 @@ lives_row = 21
 
 ship_color = 05o
 
-thrust = $0040
+thrust = $0009
+gravity = $0002
 
 border MACRO
     ld a,\1
@@ -210,6 +211,8 @@ movement:
     ld a,c
     ld (sound),a
 
+    ld de,gravity
+    add hl,de
     ld (velocity_y),hl
 
     ; Apply velocity

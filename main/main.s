@@ -14,6 +14,8 @@ lives_row = 21
 
 ship_color = 05o
 
+thrust = $0040
+
 border MACRO
     ld a,\1
     out ($fe),a
@@ -176,7 +178,7 @@ finescroll_bits = $+1
 movement:
     ld a,(ship_sprite_x)
     ld b,a
-    ld hl,(scroll_pos)
+    ld hl,(velocity_y)   ; HL = velocity_y
     ld c,0      ; sound
 
     ld a,$fd
@@ -187,7 +189,8 @@ movement:
 .not_left:
     rra
     jp c,.not_down
-    inc hl
+    ld de,thrust
+    add hl,de
 .not_down:
     rra
     jp c,.not_right
@@ -198,18 +201,38 @@ movement:
     in a,($fe)  ; read key row: TREWQ
     and %10
     jp nz,.not_up
-    dec hl
+    ld de,-thrust
+    add hl,de
     ld c,$18
 .not_up:
     ld a,b
     ld (ship_sprite_x),a
-    ld (scroll_pos),hl
     ld a,c
     ld (sound),a
 
+    ld (velocity_y),hl
+
+    ; Apply velocity
+    ld a,h
+    rla
+    sbc a  ; $ff if velocity is negative, otherwise $00
+    ld e,a
+
+    ld a,(scroll_pos_fraction)
+    add l   ; add velocity_y low byte
+    ld (scroll_pos_fraction),a
+
+    ld a,(scroll_pos)
+    adc h   ; add velocity_y high byte
+    ld (scroll_pos),a
+
+    ld a,(scroll_pos+1)
+    adc e   ; $ff if velocity is negative, otherwise $00
+    ld (scroll_pos+1),a
+
     ; --------------------
     ; Update level pointer
-    ;ld hl,(scroll_pos)
+    ld hl,(scroll_pos)
 
     ; Divide by 8 and multiply by map_width
     ld a,l
@@ -374,8 +397,11 @@ movement:
     ret
 
 scroll_pos: dw 0
+scroll_pos_fraction: db 0
 
 ship_sprite_x: db map_width*4-8
+
+velocity_y: dw 0
 
 level:
     INCBIN "level.dat"

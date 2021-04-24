@@ -46,6 +46,10 @@ each_frame:
     border 1  ; top third finescroll
     ld hl,$4000+map_width
     call draw_finescroll_third
+    border 6
+
+    border 4  ; movement
+    call move_ship
 
     border 0
     call wait_frame               ; Next frame starts!
@@ -58,24 +62,9 @@ each_frame:
     call draw_finescroll_third
     border 6
 
-x_pos = $+1
-    ld a,-1 ; x
-    inc a
-    ld (x_pos),a
-    ld b,a  ; x
-
-y_pos = $+1
-    ld a,-1 ; y
-    inc a
-    cp 192-sprite_height
-    jr nz,.no_wrap
-    xor a
-.no_wrap:
-    ld (y_pos),a
-    ld c,a
+    border 5   ; draw sprite
+    ld bc,(ship_sprite_y)  ; set B=x, C=y
     ld de,ship_spr
-
-    border 5
     call draw_sprite
 
     border 0
@@ -163,7 +152,50 @@ finescroll_bits = $+1
     ld sp,$0000
     ret
 
+move_ship:
+    ld a,(ship_sprite_x)
+    ld b,a
+    ld hl,(ship_pos_y)
+
+    ld a,$fd
+    in a,($fe)  ; read key row: GFDSA
+    rra
+    jp c,.not_left
+    dec b
+.not_left:
+    rra
+    jp c,.not_down
+    inc hl
+.not_down:
+    rra
+    jp c,.not_right
+    inc b
+.not_right:
+
+    ld a,$fb
+    in a,($fe)  ; read key row: TREWQ
+    and %10
+    jp nz,.not_up
+    dec hl
+.not_up:
+    ld a,b
+    ld (ship_sprite_x),a
+    ld (ship_pos_y),hl
+    ;ld de,(scroll_pos)
+    ;sbc hl,de
+    ld a,l
+    ld (ship_sprite_y),a
+
+    ret
+
 scroll_pos: dw 0
+
+; These two must be following each other, in this order
+ship_sprite_y: db 128
+ship_sprite_x: db map_width*4-8
+
+ship_pos_x: db map_width * 4 - 8
+ship_pos_y: dw 128
 
 level:
     INCBIN "level.dat"

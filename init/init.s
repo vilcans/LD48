@@ -10,6 +10,7 @@ interrupt_routine = handler +1
 handler_end = handler + 3
 
     EXTERN set_interrupt
+    EXTERN wait_frame
 
     SECTION lowmem
 init:
@@ -48,14 +49,45 @@ set_interrupt:
     ret
 
 default_interrupt_routine:
-    push hl
-    ;ld hl,$5821
-    ;inc (hl)
-    pop hl
+    push bc
+    push af
+
+    ld a,$bf
+    in a,($fe)  ; read key row: H J K L enter
+    and 1
+    ld c,a
+last_key = $+1
+    xor $01
+    call nz,key_changed
+
+    ld a,(paused)
+    ld ($581e),a
+    pop af
+    pop bc
     ei
     reti
 
-    ;SECTION .text
+wait_frame:
+    ei
+    halt
+    di
+    ld a,(paused)
+    or a
+    jr nz,wait_frame
+    ret
+
+key_changed:
+    ld a,c
+    ld (last_key),a
+    rra
+    ret c ; key was released
+
+    ld a,(paused)
+    cpl
+    ld (paused),a
+    ret
+
+paused: db 0
 
     SECTION .bss,"uR"
     ALIGN 8

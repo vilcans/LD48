@@ -31,10 +31,11 @@ each_frame:
     ld hl,(scroll_pos)
     inc hl
     ld (scroll_pos),hl
-    ei
-    halt
-    di
 
+    call wait_frame
+
+    border 2
+    call draw_tiles
     border 4
     call draw_finescroll
     border 0

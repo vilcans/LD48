@@ -1,6 +1,12 @@
 all:
 	$(MAKE) -C main
 
+run:
+	$(MAKE) -C main run
+
+debug:
+	$(MAKE) -C main debug
+
 # Create a new part from template.
 # Usage example to create new part xyz: make newpart PART=xyz
 newpart:

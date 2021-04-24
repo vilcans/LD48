@@ -1,5 +1,6 @@
     EXTERN create_screen_table
 	EXTERN screen_table
+	EXTERN create_screen_table_with_skip
 
 	INCLUDE memory.inc
 
@@ -10,10 +11,13 @@
 ;   HL points to start of table
 ;   DE points to start of screen memory, typically $4000 or $c000,
 ;   but also with offset possible e.g. $4002 or $4020.
+;   If you call create_screen_table_with_skip,
 ;   A holds the number of bytes to skip between each entry in the table
 ; Output:
 ;   Table filled with 192*2 bytes
 create_screen_table:
+	xor a
+create_screen_table_with_skip:
 	inc a
 	ld (.modulo),a
 	ld a,e

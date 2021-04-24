@@ -4,6 +4,8 @@
 map_width = 20
 visible_height_rows = 24
 
+extra_delay = 2
+
 border MACRO
     ld a,\1
     out ($fe),a
@@ -41,12 +43,19 @@ each_frame:
     border 6
     call prepare_finescroll
 
-    border 7  ; draw_tiles
-    call draw_tiles
     border 1  ; top third finescroll
     ld hl,$4000+map_width
     call draw_finescroll_third
-    border 6
+
+    border 0
+    ld bc,extra_delay
+.delay:
+    djnz .delay  ; 3323 cycles
+    dec c
+    jr nz,.delay
+
+    border 7  ; draw_tiles
+    call draw_tiles
 
     border 4  ; movement
     call move_ship

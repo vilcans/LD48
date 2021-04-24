@@ -7,17 +7,33 @@
     EXTERN draw_colored_sprite
     EXTERN preshift_sprite
 
+ld_hl_a = $77
+ld_de_a = $12
+
 draw_colored_sprite:
+    ld ($1000),a
     ; A = attributes
     ; B = x
     ; C = y
     ; DE = preshifted sprite bitmap
+
+    push de
 
     ld (.attr),a
     ld a,b
     ld (.hpos),a
 
     push bc
+
+    ld a,b   ; x
+    and 7
+    cp 17-sprite_visible_width
+    ld a,ld_hl_a   ; write to screen memory
+    jr nc,.wide
+    ld a,0   ; nop
+.wide:
+    ld (.rightmost_byte_0_op),a
+    ld (.rightmost_byte_1_op),a
 
     ; Vertical position
     ld a,c  ; y
@@ -54,6 +70,7 @@ draw_colored_sprite:
     inc l
     ld (hl),a
     inc l
+.rightmost_byte_0_op:
     ld (hl),a
     ; Row 1
     add hl,bc
@@ -61,6 +78,7 @@ draw_colored_sprite:
     inc l
     ld (hl),a
     inc l
+.rightmost_byte_1_op:
     ld (hl),a
     ; Row 3
     ;add hl,bc
@@ -71,6 +89,7 @@ draw_colored_sprite:
     ;ld (hl),a
 
     pop bc
+    pop de
 
 draw_sprite:
     ; B = x
@@ -105,12 +124,30 @@ draw_sprite:
     add hl,de
 
     ; Horizontal byte position
+    ; Check for 2 byte wide
+    ld a,b   ; x
+    and 7
+    cp 17-sprite_visible_width
+    jr nc,.wide
+    ld a,b  ; x
+    rra
+    rra
+    rra
+    and $1f
+    ld c,a
+
+    ld a,ld_hl_a  ; ld (hl),a - in practice a nop that takes 11 cycles
+    jp .width_done
+.wide:
     ld a,b  ; x
     rra
     rra
     rra
     and $1f     ; A = horizontal byte position
     ld c,a   ; horizontal byte position
+    ld a,ld_de_a
+.width_done:
+    ld (.rightmost_byte_opcode),a
 
 set_sp = $+1
     ld sp,screen_addresses
@@ -135,7 +172,8 @@ set_sp = $+1
     inc e
     ; byte 2
     ld a,(hl)
-    ld (de),a
+.rightmost_byte_opcode:
+    ld (de),a  ; (opcode $12) or ld (hl),a (opcode $77)
     inc hl
 
     djnz .each_row

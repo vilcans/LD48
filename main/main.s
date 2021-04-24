@@ -6,7 +6,13 @@ visible_height_rows = 24
 
 extra_delay = 2
 
-ship_sprite_y = 96
+ship_sprite_row = 12
+ship_sprite_y = ship_sprite_row * 8
+
+lives_column = map_width + 1
+lives_row = 21
+
+ship_color = 05o
 
 border MACRO
     ld a,\1
@@ -21,7 +27,7 @@ main:
 
     ld hl,$4000
     ld de,$4001
-    ld (hl),$55
+    ld (hl),$00
     ld bc,$1800
     ldir
     ld bc,$2ff
@@ -36,6 +42,11 @@ main:
     ld hl,ship_spr_source
     ld de,ship_spr
     call preshift_sprite
+
+    ;ld a,ship_color
+    ld bc,((lives_column * 8 + 4) << 8) | (lives_row * 8 + 4)
+    ld de,ship_spr
+    call draw_sprite
 
 each_frame:
     border 6
@@ -89,7 +100,7 @@ sound = $+1
     ld a,(ship_sprite_x)
     ld b,a
     ld de,ship_spr
-    ld a,05o
+    ld a,ship_color
     call draw_colored_sprite
 
     border 0
@@ -218,14 +229,153 @@ movement:
     add hl,de
     ld (level_ptr),hl
 
+    ; --------------------
+    ; Check for collision
+
+    ld a,(ship_sprite_x)
+    and $f8
+    rrca
+    rrca
+    rrca
+    ld e,a
+    ld d,0
+    add hl,de
+    ld de,ship_sprite_row * map_width
+    add hl,de
+
+    ; Collect collisions
+    ; if paper is not 0, that cell has collided
+
+    ld de,($10 << 8) | 70o  ; D = comparison, E = paper mask, needed to mask out bright bit
+
+.get_collision MACRO
+    ld a,(hl)
+    and e
+    cp d    ; check paper color
+    rl c    ; save bit
+    ENDM
+
+    ; Top left
+    .get_collision
+    ; Top middle
+    inc hl
+    .get_collision
+    ; Top right
+    inc hl
+    .get_collision
+
+    ; Go to next row
+    ld a,l
+    add map_width - 2
+    ld l,a
+    ld a,h
+    adc 0
+    ld h,a
+
+    ; Middle left
+    .get_collision
+    ; Middle right
+    inc hl
+    inc hl  ; skip middle center
+    .get_collision
+
+    ; Go to next row
+    ld a,l
+    add map_width - 2
+    ld l,a
+    ld a,h
+    adc 0
+    ld h,a
+
+    ; Bottom left
+    .get_collision
+    ; Bottom middle
+    inc hl
+    .get_collision
+    ; Bottom right
+    inc hl
+    .get_collision
+
+    ; Collision bits:
+    ; 7 = top left
+    ; 6 = top middle
+    ; 5 = top right
+    ; 4 = center left
+    ; 3 = center right
+    ; 2 = bottom left
+    ; 1 = bottom middle
+    ; 0 = bottom right
+
+    ; Create collision mask
+    ld b,%11111111
+    ; If the x position is divisible by 8, do not check the rightmost collisions
+    ld a,(ship_sprite_x)
+    and 7
+    cp 1
+    jr nc,.not_even_x
+    ;     76543210
+    ld b,%11010110
+.not_even_x:
+    ; If the y position is divisible by 8, do not check the bottom collisions
+    ld a,(scroll_pos)
+    and 7
+    cp 1
+    jr nc,.not_even_y
+    ;     76543210
+    ld a,%11111000
+    and b
+    ld b,a
+.not_even_y:
+
+    ld a,c
+    cpl
+    ld ($423f),a   ; collisions unmasked
+    and b
+    ld ($443f),a   ; collision masked
+    ld (collisions),a
+    ld a,b
+    ld ($433f),a   ; collision mask
+
+    ; Debug draw collisions
+    ld a,(collisions)
+    ld c,a
+    ld e,07o  ; mask
+
+    ; Debug draw top
+.addr SET $5800 + (lives_column + lives_row * $20);
+    REPT 3
+    rl c
+    sbc a
+    and e
+    ld (.addr),a
+.addr SET .addr + 1
+    ENDR
+
+    ; Debug draw middle
+.addr SET $5800 + (lives_column + (lives_row + 1) * $20);
+    rl c
+    sbc a
+    and e
+    ld (.addr),a
+    rl c
+    sbc a
+    and e
+    ld (.addr + 2),a
+
+    ; Debug draw bottom
+.addr SET $5800 + (lives_column + (lives_row + 2) * $20);
+    REPT 3
+    rl c
+    sbc a
+    and e
+    ld (.addr),a
+.addr SET .addr + 1
+    ENDR
     ret
 
 scroll_pos: dw 0
 
 ship_sprite_x: db map_width*4-8
-
-ship_pos_x: db map_width * 4 - 8
-ship_pos_y: dw 128
 
 level:
     INCBIN "level.dat"
@@ -247,3 +397,6 @@ ship_spr_source:
     SECTION .bss,"uR"
 ship_spr:
     ds sprite_height * 3 * 8
+
+collisions:
+    ds 1

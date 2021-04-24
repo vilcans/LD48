@@ -5,13 +5,15 @@ map_width = 20
 
     SECTION .text
 main:
-    ld ($1000),a
     ld hl,screen_addresses
     ld de,$4000
     call create_screen_table
 
-    ld hl,$5800
-    ld de,$5801
+    ld hl,$4000
+    ld de,$4001
+    ld (hl),$55
+    ld bc,$1800
+    ldir
     ld bc,$2ff
     ld (hl),17o
     ldir
@@ -21,16 +23,14 @@ main:
     call preshift_sprite
 
 each_frame:
+    ld hl,(scroll_pos)
+    inc hl
+    ld (scroll_pos),hl
     ei
     halt
     di
-    call draw_tiles
-
-    ld hl,$4000
-    ld de,$4001
-    ld (hl),$55
-    ld bc,$17ff
-    ldir
+    call draw_finescroll
+    ;call draw_tiles
 
     ld a,6
     out ($fe),a
@@ -71,6 +71,56 @@ draw_tiles:
     dec c
     djnz .each_row
     ret
+
+draw_finescroll:
+    ld (.save_sp),sp
+    ld sp,$4000+map_width
+
+    ld a,(scroll_pos)
+    and 7
+    jr z,.only_lower
+    ld b,a  ; number of upper lines to draw
+    xor 7
+    ld (.lower_lines),a
+
+    ld de,$fefe
+    ld iy,.return1
+    jp draw_lines
+.return1:
+.lower_lines = $+1
+    ld a,$07
+    or a
+    jr z,.return2
+    ld b,a
+.into_lower:
+    ld de,$0101
+    ld iy,.return2
+    jp draw_lines
+.return2:
+.save_sp = $+1
+    ld sp,$0000
+    ret
+.only_lower:
+    ld b,8
+    jr .into_lower
+
+draw_lines:
+; DE = bytes to fill with
+; B = number of lines to fill
+; SP = end of area to fill
+; IY = return address
+
+.each_line:
+    REPT map_width/2
+    push de
+    ENDR
+    ld hl,$100 + map_width  ; next line
+    add hl,sp
+    ld sp,hl
+    djnz .each_line
+    jp (iy)
+
+scroll_pos: dw 0
 
 level:
     INCBIN "level.dat"

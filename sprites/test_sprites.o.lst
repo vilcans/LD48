@@ -1,0 +1,29 @@
+
+
+Sections:
+S01  .text
+S02  .bss
+
+
+Sources:
+
+
+Symbols:
+preshifted_end LAB (0x180) sec=.bss 
+draw_sprite IMP 
+y_pos LAB (0x3c) align=1 sec=.text 
+ *tmp000000001* LAB (0x3b) sec=.text 
+x_pos LAB (0x35) align=1 sec=.text 
+ *tmp000000000* LAB (0x34) sec=.text 
+each_frame LAB (0x20) sec=.text 
+preshift_sprite IMP 
+preshifted LAB (0x0) sec=.bss 
+sprite LAB (0x4f) sec=.text 
+create_screen_table IMP 
+test_sprites LAB (0x0) sec=.text 
+sprite_height EXPR(16) 
+screen_addresses EXPR(32768) 
+__VASM EXPR(0) INTERNAL 
+LOWMEM EXPR(30720) 
+
+There have been no errors.

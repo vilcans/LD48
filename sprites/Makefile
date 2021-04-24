@@ -1,5 +1,5 @@
-MODULE = sprite
-SOURCES = $(MODULE).s
+MODULE = sprites
+SOURCES = test_sprites.s $(MODULE).s
 DEPENDENCIES = ../screentab/screentab.o
 GENERATED = circle.spr
 

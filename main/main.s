@@ -80,33 +80,14 @@ draw_tiles:
     ld de,level
     add hl,de
 
-    push hl
-    exx
-    pop de
-    ld hl,map_width
-    add hl,de         ; HL' = next level row
-    exx
-
     ld de,$5800
     ld b,visible_height_rows  ; row counter
 .each_row:
-
+    push bc
     REPT map_width
-    ld a,(hl)
-    inc hl
-    and $40 + 70o   ; top row is paper + bright
-    ld c,a  ; temp save
-    exx
-    ld a,(hl)
-    inc hl
-    and $40 + 07o   ; bottom row is ink + bright
-    exx
-    or c
-    ld (de),a
-    inc e
+    ldi
     ENDR
 
-    push bc
     ld bc,32-map_width
     ex de,hl
     add hl,bc

@@ -7,10 +7,46 @@ import codecs
 import re
 
 
-def transform(tile):
-    bright = (tile >> 8) & 1
-    ink = tile & 7
-    return (ink << 3) | ink | (bright << 6)
+def to_tile_number(firstgid, d):
+    d = d & 0x3fffffff   # bit 30 and 31 are mirror x, y flags
+    if d >= firstgid:
+        return d - firstgid
+    else:
+        return 0
+
+
+# def convert_to_binary(tile_numbers, width, height):
+#    """Convert tile numbers in a list to a binary array"""
+#    array_data = array('B')
+#    for n in tile_numbers:
+#        array_data.append(n)
+#    return array_data
+
+
+def spectrum_attr(tile):
+    bright = (tile >> 3) & 1
+    color = tile & 7
+    return (color, bright)
+
+
+def convert_to_binary(tile_numbers, width, height):
+    array_data = array('B')
+    for row in range(height):
+        for column in range(width):
+            top = tile_numbers[row * width + column]
+            if row < height - 1:
+                bottom = tile_numbers[(row + 1) * width + column]
+            else:
+                bottom = top
+
+            c0, b0 = spectrum_attr(top)
+            c1, b1 = spectrum_attr(bottom)
+
+            # Top row is paper, bottom is ink
+            b = ((b0 | b1) << 6) | c1 | (c0 << 3)
+            array_data.append(b)
+
+    return array_data
 
 
 def convert_tmx(infile):
@@ -26,6 +62,9 @@ def convert_tmx(infile):
     for layer_node in layer_nodes:
         data_node = layer_node.find('data')
         name = layer_node.attrib['name']
+        width = int(layer_node.attrib['width'])
+        height = int(layer_node.attrib['height'])
+        print(f'Layer "{name}": {width}x{height}')
 
         encoding = data_node.attrib['encoding']
         if encoding == 'csv':
@@ -35,15 +74,10 @@ def convert_tmx(infile):
             # raw_data is raw 32-bit integers packed into a string: decode it
             data = struct.unpack('<%dI' % (len(raw_data) / 4), raw_data)
 
-        array_data = array('B')
-        for d in data:
-            d = d & 0x3fffffff   # bit 30 and 31 are mirror x, y flags
-            if d >= firstgid:
-                array_data.append(transform(d - firstgid))
-            else:
-                array_data.append(0)
-
-        layers.append((name, array_data))
+        assert len(data) == width * height
+        tile_numbers = [to_tile_number(firstgid, d) for d in data]
+        bin_data = convert_to_binary(tile_numbers, width, height)
+        layers.append((name, bin_data))
 
     return layers
 

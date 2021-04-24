@@ -90,9 +90,8 @@ draw_tiles:
     add hl,de
 
     ld de,$5800
-    ld b,visible_height_rows  ; row counter
+    ld a,visible_height_rows  ; row counter
 .each_row:
-    push bc
     REPT map_width
     ldi
     ENDR
@@ -101,9 +100,8 @@ draw_tiles:
     ex de,hl
     add hl,bc
     ex de,hl
-    pop bc
 
-    dec b
+    dec a
     jp nz,.each_row
     ret
 

@@ -27,3 +27,6 @@ ASM_FLAGS = \
 
 %.z80: %.bin
 	python $(BIN_DIR)/snap.py --machine=48 --start='0x${MEM_BOTTOM}' $< $@
+
+%.spr: %.png
+	python $(BIN_DIR)/convert_image.py $< $@

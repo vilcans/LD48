@@ -97,30 +97,8 @@ sound = $+1
     jp each_frame
 
 draw_tiles:
-    ld hl,(scroll_pos)
-
-    ; Get coarse position
-    ; mul with map_width
-    ; Divide by 8 and multiply by 20
-    ld a,l
-
-    ; Divide by 8, and multiply by 4
-    sra h
-    rra     ; /2
-    and $fc  ; now HA = scroll_pos / 8 * 4
-
-    ; Multiply by map_width
-    ld d,h
-    ld e,a     ; DE = *4
-    add a     ; *8
-    rl h
-    add a     ; *16
-    rl h
-    ld l,a
-    add hl,de  ; *20
-
-    ld de,level
-    add hl,de
+level_ptr = $+1
+    ld hl,level
 
     ld de,$5800
     ld a,visible_height_rows  ; row counter
@@ -217,6 +195,29 @@ movement:
     ld (scroll_pos),hl
     ld a,c
     ld (sound),a
+
+    ; --------------------
+    ; Update level pointer
+    ;ld hl,(scroll_pos)
+
+    ; Divide by 8 and multiply by map_width
+    ld a,l
+    sra h
+    rra     ; /2
+    and $fc  ; now HA = scroll_pos / 8 * 4
+    ld d,h
+    ld e,a     ; DE = *4
+    add a     ; *8
+    rl h
+    add a     ; *16
+    rl h
+    ld l,a
+    add hl,de  ; *20
+
+    ld de,level
+    add hl,de
+    ld (level_ptr),hl
+
     ret
 
 scroll_pos: dw 0

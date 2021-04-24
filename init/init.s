@@ -54,11 +54,25 @@ default_interrupt_routine:
 
     ld a,$bf
     in a,($fe)  ; read key row: H J K L enter
+    ld c,a  ; C = current keys
+
+    ld a,(paused)
+    cp 1
+    jr z,.single_frame_done
+
+    ld a,c
+    bit 1,a   ; L to proceed a single frame
+    jr z,.single_step_down
+
     and 1
-    ld c,a
 last_key = $+1
     xor $01
+    and $01
     call nz,key_changed
+
+.after_pause:
+    ld a,c
+    ld (last_key),a
 
     ld a,(paused)
     ld ($581e),a
@@ -66,19 +80,32 @@ last_key = $+1
     pop bc
     ei
     reti
+.single_frame_done:
+    ld a,$ff
+    ld (paused),a
+    jr .after_pause
+
+.single_step_down:
+    ld a,(last_key)
+    bit 1,a   ; single step key was pressed last frame too?
+    jr z,.after_pause
+    ld a,1
+    ld (paused),a
+    jr .after_pause
 
 wait_frame:
     ei
     halt
     di
     ld a,(paused)
+    cp 1
+    ret z   ; run a single frame
     or a
     jr nz,wait_frame
     ret
 
 key_changed:
     ld a,c
-    ld (last_key),a
     rra
     ret c ; key was released
 
@@ -87,7 +114,7 @@ key_changed:
     ld (paused),a
     ret
 
-paused: db 0
+paused: db 0  ; 0 = unpaused, 1 = forward one frame, $ff = paused
 
     SECTION .bss,"uR"
     ALIGN 8

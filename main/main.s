@@ -65,7 +65,8 @@ each_frame:
     border 5   ; draw sprite
     ld bc,(ship_sprite_y)  ; set B=x, C=y
     ld de,ship_spr
-    call draw_sprite
+    ld a,35o
+    call draw_colored_sprite
 
     border 0
 

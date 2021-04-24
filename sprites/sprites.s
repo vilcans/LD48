@@ -4,7 +4,63 @@
     INCLUDE sprites.inc
 
     EXTERN draw_sprite
+    EXTERN draw_colored_sprite
     EXTERN preshift_sprite
+
+draw_colored_sprite:
+    ; A = attributes
+    ; B = x
+    ; C = y
+    ; DE = preshifted sprite bitmap
+
+    ld (.attr),a
+    ld a,b
+    ld (.hpos),a
+
+    push bc
+
+    ; Vertical position
+    ld a,c  ; y
+    ld b,0
+    ; divide by 8, then multiply by 32 = multiply by 4
+    and $f8
+    add a
+    rl b
+    add a
+    rl b
+    ld c,a
+
+    ld hl,$5800
+    add hl,bc
+
+    ; Horizontal position
+.hpos = $+1
+    ld a,$00
+    srl a
+    srl a
+    srl a
+    add l
+    ld l,a
+    ld a,h
+    adc 0
+    ld h,a
+
+.attr = $+1
+    ld a,$00
+    ld (hl),a
+    inc l
+    ld (hl),a
+    inc l
+    ld (hl),a
+    ld bc,30
+    add hl,bc
+    ld (hl),a
+    inc l
+    ld (hl),a
+    inc l
+    ld (hl),a
+
+    pop bc
 
 draw_sprite:
     ; B = x

@@ -7,6 +7,9 @@ run:
 debug:
 	$(MAKE) -C main debug
 
+disassemble:
+	$(MAKE) -C main disassemble
+
 # Create a new part from template.
 # Usage example to create new part xyz: make newpart PART=xyz
 newpart:

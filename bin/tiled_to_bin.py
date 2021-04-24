@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 import struct
 from array import array
 import codecs
+import re
 
 
 def convert_tmx(infile):
@@ -20,11 +21,13 @@ def convert_tmx(infile):
         data_node = layer_node.find('data')
         name = layer_node.attrib['name']
 
-        raw_data = codecs.decode(data_node.text.encode(
-            'ascii'), data_node.attrib['encoding'])
-
-        # raw_data is raw 32-bit integers packed into a string: decode it
-        data = struct.unpack('<%dI' % (len(raw_data) / 4), raw_data)
+        encoding = data_node.attrib['encoding']
+        if encoding == 'csv':
+            data = [int(a) for a in re.split(r',\s*', data_node.text)]
+        else:
+            raw_data = codecs.decode(data_node.text.encode('ascii'), encoding)
+            # raw_data is raw 32-bit integers packed into a string: decode it
+            data = struct.unpack('<%dI' % (len(raw_data) / 4), raw_data)
 
         array_data = array('B')
         for d in data:

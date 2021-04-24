@@ -2,6 +2,7 @@
     INCLUDE "sprites.inc"
 
 map_width = 20
+visible_height_rows = 24
 
 border MACRO
     ld a,\1
@@ -38,9 +39,6 @@ each_frame:
     call draw_tiles
     border 4
     call draw_finescroll
-    border 0
-    ;call draw_tiles
-
     border 6
 
 x_pos = $+1
@@ -64,21 +62,59 @@ y_pos = $+1
     jp each_frame
 
 draw_tiles:
-    ld hl,level
+    ld hl,(scroll_pos)
+    ; Get coarse position
+    REPT 3
+    sra h
+    rr l
+    ENDR
+    ; mul with map_width
+    add hl,hl  ; x2
+    add hl,hl  ; x4
+    ld d,h
+    ld e,l     ; DE = x4
+    add hl,hl  ; x8
+    add hl,hl  ; x16
+    add hl,de  ; x20
+
+    ld de,level
+    add hl,de
+
+    push hl
+    exx
+    pop de
+    ld hl,map_width
+    add hl,de         ; HL' = next level row
+    exx
+
     ld de,$5800
-    ld c,10  ; row counter
+    ld b,visible_height_rows  ; row counter
 .each_row:
+
+    REPT map_width
+    ld a,(hl)
+    inc hl
+    and $40 + 70o   ; top row is paper + bright
+    ld c,a  ; temp save
+    exx
+    ld a,(hl)
+    inc hl
+    and $40 + 07o   ; bottom row is ink + bright
+    exx
+    or c
+    ld (de),a
+    inc e
+    ENDR
+
     push bc
-    ld bc,map_width
-    ldir
     ld bc,32-map_width
     ex de,hl
     add hl,bc
     ex de,hl
     pop bc
 
-    dec c
-    djnz .each_row
+    dec b
+    jp nz,.each_row
     ret
 
 draw_finescroll:
@@ -91,6 +127,9 @@ draw_finescroll:
     ld ix,bits_per_scroll
 .offset = $+2
     ld e,(ix+0)  ; E = whether to set paper or ink
+
+    ld a,e
+    ld ($401f),a
 
     ld d,3   ; third count
 .each_third:
@@ -134,14 +173,14 @@ level:
     INCBIN "level.dat"
 
 bits_per_scroll:
-    db %11111111
-    db %01111111
-    db %00111111
-    db %00011111
-    db %00001111
-    db %00000111
-    db %00000011
+    db %00000000
     db %00000001
+    db %00000011
+    db %00000111
+    db %00001111
+    db %00011111
+    db %00111111
+    db %01111111
 
     SECTION lowmem
 ship_spr_source:

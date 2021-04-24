@@ -98,19 +98,26 @@ sound = $+1
 
 draw_tiles:
     ld hl,(scroll_pos)
+
     ; Get coarse position
-    REPT 3
-    sra h
-    rr l
-    ENDR
     ; mul with map_width
-    add hl,hl  ; x2
-    add hl,hl  ; x4
+    ; Divide by 8 and multiply by 20
+    ld a,l
+
+    ; Divide by 8, and multiply by 4
+    sra h
+    rra     ; /2
+    and $fc  ; now HA = scroll_pos / 8 * 4
+
+    ; Multiply by map_width
     ld d,h
-    ld e,l     ; DE = x4
-    add hl,hl  ; x8
-    add hl,hl  ; x16
-    add hl,de  ; x20
+    ld e,a     ; DE = *4
+    add a     ; *8
+    rl h
+    add a     ; *16
+    rl h
+    ld l,a
+    add hl,de  ; *20
 
     ld de,level
     add hl,de

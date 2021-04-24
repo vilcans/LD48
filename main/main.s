@@ -38,10 +38,10 @@ each_frame:
     inc hl
     ld (scroll_pos),hl
 
-    call wait_frame
-
-    border 2
+    border 7
     call draw_tiles
+    border 0
+    call wait_frame
     border 4
     call draw_finescroll
     border 6
@@ -121,6 +121,8 @@ draw_finescroll:
 
     ld d,3   ; third count
 .each_third:
+    ld a,d
+    out ($fe),a
     ld c,8  ; row count
 .each_row:
     ld b,8

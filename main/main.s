@@ -1,6 +1,8 @@
     INCLUDE "memory.inc"
     INCLUDE "sprites.inc"
 
+map_width = 20
+
     SECTION .text
 main:
     ld ($1000),a
@@ -22,6 +24,8 @@ each_frame:
     ei
     halt
     di
+    call draw_tiles
+
     ld hl,$4000
     ld de,$4001
     ld (hl),$55
@@ -49,6 +53,27 @@ y_pos = $+1
     out ($fe),a
 
     jp each_frame
+
+draw_tiles:
+    ld hl,level
+    ld de,$5800
+    ld c,10  ; row counter
+.each_row:
+    push bc
+    ld bc,map_width
+    ldir
+    ld bc,32-map_width
+    ex de,hl
+    add hl,bc
+    ex de,hl
+    pop bc
+
+    dec c
+    djnz .each_row
+    ret
+
+level:
+    INCBIN "level.dat"
 
     SECTION lowmem
 ship_spr_source:

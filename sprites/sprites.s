@@ -153,7 +153,7 @@ set_sp = $+1
     ld sp,screen_addresses
 
     ; In loop: HL = source, DE = screen
-    ld b,sprite_height
+    ld b,sprite_visible_height
 .each_row:
     pop de
     ld a,c    ; horizontal byte position

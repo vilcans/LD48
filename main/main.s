@@ -319,7 +319,7 @@ movement:
     ; If the y position is divisible by 8, do not check the bottom collisions
     ld a,(scroll_pos)
     and 7
-    cp 1
+    cp sprite_height+1-sprite_visible_height
     jr nc,.not_even_y
     ;     76543210
     ld a,%11111000

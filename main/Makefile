@@ -1,5 +1,5 @@
 MODULE = main
-SOURCES = $(MODULE).s data.s
+SOURCES = $(MODULE).s
 DEPENDENCIES = ../sprites/sprites.o ../screentab/screentab.o
 GENERATED = ship.spr \
 	level.dat

@@ -7,6 +7,12 @@ import codecs
 import re
 
 
+def transform(tile):
+    bright = (tile >> 8) & 1
+    ink = tile & 7
+    return (ink << 3) | ink | (bright << 6)
+
+
 def convert_tmx(infile):
     tree = ET.parse(infile)
 
@@ -33,7 +39,7 @@ def convert_tmx(infile):
         for d in data:
             d = d & 0x3fffffff   # bit 30 and 31 are mirror x, y flags
             if d >= firstgid:
-                array_data.append(d - firstgid)
+                array_data.append(transform(d - firstgid))
             else:
                 array_data.append(0)
 

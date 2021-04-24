@@ -294,7 +294,9 @@ movement:
     ; Collect collisions
     ; if paper is not 0, that cell has collided
 
-    ld de,($08 << 8) | 70o  ; D = comparison, E = paper mask, needed to mask out bright bit
+    ; D = comparison value. Any tile equal or greater than this is collidable.
+    ; E = paper mask, needed to mask out bright bit
+    ld de,(20o << 8) | 70o
 
 .get_collision MACRO
     ld a,(hl)

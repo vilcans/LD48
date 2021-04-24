@@ -59,6 +59,20 @@ each_frame:
     call movement
 
     border 0
+frame_counter = $+1
+    ld a,0
+    inc a
+    ld (frame_counter),a
+
+    rra
+    rra
+    sbc a
+    ld b,a
+sound = $+1
+    ld a,0
+    and b
+    out ($fe),a
+
     call wait_frame               ; Next frame starts!
 
     border 2  ; middle third finescroll
@@ -167,6 +181,7 @@ movement:
     ld a,(ship_sprite_x)
     ld b,a
     ld hl,(scroll_pos)
+    ld c,0      ; sound
 
     ld a,$fd
     in a,($fe)  ; read key row: GFDSA
@@ -188,10 +203,13 @@ movement:
     and %10
     jp nz,.not_up
     dec hl
+    ld c,$18
 .not_up:
     ld a,b
     ld (ship_sprite_x),a
     ld (scroll_pos),hl
+    ld a,c
+    ld (sound),a
     ret
 
 scroll_pos: dw 0

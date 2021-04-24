@@ -47,18 +47,28 @@ draw_colored_sprite:
 
 .attr = $+1
     ld a,$00
-    ld (hl),a
-    inc l
-    ld (hl),a
-    inc l
-    ld (hl),a
     ld bc,30
+
+    ; Row 0
+    ld (hl),a
+    inc l
+    ld (hl),a
+    inc l
+    ld (hl),a
+    ; Row 1
     add hl,bc
     ld (hl),a
     inc l
     ld (hl),a
     inc l
     ld (hl),a
+    ; Row 3
+    ;add hl,bc
+    ;ld (hl),a
+    ;inc l
+    ;ld (hl),a
+    ;inc l
+    ;ld (hl),a
 
     pop bc
 

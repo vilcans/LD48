@@ -308,14 +308,14 @@ movement:
 
     ; Create collision mask
     ld b,%11111111
-    ; If the x position is divisible by 8, do not check the rightmost collisions
+    ; On a thin sprite, do not check the rightmost collisions
     ld a,(ship_sprite_x)
     and 7
-    cp 1
-    jr nc,.not_even_x
+    cp 17-sprite_visible_width
+    jr nc,.wide_sprite
     ;     76543210
     ld b,%11010110
-.not_even_x:
+.wide_sprite:
     ; If the y position is divisible by 8, do not check the bottom collisions
     ld a,(scroll_pos)
     and 7

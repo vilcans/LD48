@@ -4,4 +4,4 @@ sprite_height = 16
 ; depending on the horizontal position.
 ; If the visual sprite is thinner than 16 pixels, this can be used to draw
 ; 2 bytes wide even when x & 7 != 0.
-sprite_visible_width = 16
+sprite_visible_width = 15

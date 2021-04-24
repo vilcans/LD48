@@ -7,4 +7,4 @@ GENERATED = ship.spr \
 include ../common/part.mk
 
 level.dat: ../map/level.tmx
-	python $(BIN_DIR)/tiled_to_bin.py $< $@
+	python $(BIN_DIR)/tiled_to_bin.py --autocrop --exclude-layers=helper $< $@

@@ -6,6 +6,9 @@ visible_height_rows = 24
 
 extra_delay = 2
 
+sprite_min_y = 60
+sprite_max_y = 170
+
 border MACRO
     ld a,\1
     out ($fe),a
@@ -36,10 +39,6 @@ main:
     call preshift_sprite
 
 each_frame:
-    ld hl,(scroll_pos)
-    inc hl
-    ld (scroll_pos),hl
-
     border 6
     call prepare_finescroll
 
@@ -58,7 +57,7 @@ each_frame:
     call draw_tiles
 
     border 4  ; movement
-    call move_ship
+    call movement
 
     border 0
     call wait_frame               ; Next frame starts!
@@ -74,7 +73,7 @@ each_frame:
     border 5   ; draw sprite
     ld bc,(ship_sprite_y)  ; set B=x, C=y
     ld de,ship_spr
-    ld a,35o
+    ld a,15o
     call draw_colored_sprite
 
     border 0
@@ -162,7 +161,7 @@ finescroll_bits = $+1
     ld sp,$0000
     ret
 
-move_ship:
+movement:
     ld a,(ship_sprite_x)
     ld b,a
     ld hl,(ship_pos_y)
@@ -191,11 +190,22 @@ move_ship:
     ld a,b
     ld (ship_sprite_x),a
     ld (ship_pos_y),hl
-    ;ld de,(scroll_pos)
-    ;sbc hl,de
+    ld de,(scroll_pos)
+    sbc hl,de
     ld a,l
     ld (ship_sprite_y),a
 
+    ld hl,(scroll_pos)
+
+    cp sprite_min_y
+    jr nc,.not_above
+    dec hl
+.not_above
+    cp sprite_max_y
+    jr c,.not_below
+    inc hl
+.not_below:
+    ld (scroll_pos),hl
     ret
 
 scroll_pos: dw 0

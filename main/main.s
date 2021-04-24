@@ -91,6 +91,8 @@ draw_finescroll:
 .offset = $+2
     ld e,(ix+0)  ; E = whether to set paper or ink
 
+    ld d,3   ; third count
+.each_third:
     ld c,8  ; row count
 .each_row:
     ld b,8
@@ -114,6 +116,12 @@ draw_finescroll:
     ld sp,hl
     dec c
     jp nz,.each_row
+
+    ld hl,$800-$100
+    add hl,sp
+    ld sp,hl
+    dec d
+    jp nz,.each_third
 
 .save_sp = $+1
     ld sp,$0000

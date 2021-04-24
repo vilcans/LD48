@@ -38,12 +38,24 @@ each_frame:
     inc hl
     ld (scroll_pos),hl
 
-    border 7
+    border 6
+    call prepare_finescroll
+
+    border 7  ; draw_tiles
     call draw_tiles
+    border 1  ; top third finescroll
+    ld hl,$4000+map_width
+    call draw_finescroll_third
+
     border 0
-    call wait_frame
-    border 4
-    call draw_finescroll
+    call wait_frame               ; Next frame starts!
+
+    border 2  ; middle third finescroll
+    ld hl,$4800+map_width
+    call draw_finescroll_third
+    border 3   ; bottom finescroll
+    ld hl,$5000+map_width
+    call draw_finescroll_third
     border 6
 
 x_pos = $+1
@@ -105,24 +117,24 @@ draw_tiles:
     jp nz,.each_row
     ret
 
-draw_finescroll:
-    ld (.save_sp),sp
-    ld sp,$4000+map_width
-
+prepare_finescroll:
     ld a,(scroll_pos)
     and 7
     ld (.offset),a
     ld ix,bits_per_scroll
 .offset = $+2
-    ld e,(ix+0)  ; E = whether to set paper or ink
-
-    ld a,e
+    ld a,(ix+0)  ; E = whether to set paper or ink
     ld ($401f),a
+    ld (finescroll_bits),a
+    ret
 
-    ld d,3   ; third count
-.each_third:
-    ld a,d
-    out ($fe),a
+draw_finescroll_third:
+; HL = end of first line to draw in screen memory
+    ld (.save_sp),sp
+    ld sp,hl
+
+finescroll_bits = $+1
+    ld e,$00
     ld c,8  ; row count
 .each_row:
     ld b,8
@@ -146,12 +158,6 @@ draw_finescroll:
     ld sp,hl
     dec c
     jp nz,.each_row
-
-    ld hl,$800-$100
-    add hl,sp
-    ld sp,hl
-    dec d
-    jp nz,.each_third
 
 .save_sp = $+1
     ld sp,$0000

@@ -49,7 +49,7 @@ def convert_to_binary(tile_numbers, width, height):
     return array_data
 
 
-def convert_tmx(infile):
+def convert_tmx(infile, exclude_layers=None):
     tree = ET.parse(infile)
 
     # Assuming only one tileset
@@ -62,6 +62,9 @@ def convert_tmx(infile):
     for layer_node in layer_nodes:
         data_node = layer_node.find('data')
         name = layer_node.attrib['name']
+        if exclude_layers and exclude_layers.match(name):
+            print(f'Layer "{name}" excluded')
+            continue
         width = int(layer_node.attrib['width'])
         height = int(layer_node.attrib['height'])
         print(f'Layer "{name}": {width}x{height}')
@@ -94,19 +97,24 @@ def main():
         help='Binary data',
     )
     parser.add_argument(
-        '--layers', required=False,
-        help='Pattern for layers. {0} will be replaced by layer name.',
+        '--layer-filename', required=False,
+        help='File name pattern for layers. {0} will be replaced by layer name.',
+    )
+    parser.add_argument(
+        '--exclude-layers', required=False,
+        type=re.compile,
+        help='Regular expression for layers to exclude from output'
     )
 
     args = parser.parse_args()
     if not args.out and not args.layers:
         parser.error('Either give an output filename or --layers flag')
 
-    layers = convert_tmx(args.tmx)
+    layers = convert_tmx(args.tmx, args.exclude_layers)
 
-    if args.layers:
+    if args.layer_filename:
         for name, data in layers:
-            filename = args.layers.format(name)
+            filename = args.layer_filename.format(name)
             with open(filename, 'wb') as out:
                 out.write(data)
     else:

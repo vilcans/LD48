@@ -21,17 +21,17 @@ draw_colored_sprite:
 
     ; Vertical position
     ld a,c  ; y
-    ld b,0
+    ld h,0
     ; divide by 8, then multiply by 32 = multiply by 4
     and $f8
     add a
-    rl b
+    rl h
     add a
-    rl b
-    ld c,a
-
-    ld hl,$5800
-    add hl,bc
+    rl h
+    ld l,a   ; screen address low byte
+    ld a,h   ; screen address high byte
+    add $58  ; attributes at $5800
+    ld h,a
 
     ; Horizontal position
 .hpos = $+1

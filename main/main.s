@@ -81,12 +81,14 @@ draw_finescroll:
     ld (.offset),a
     ld ix,bits_per_scroll
 .offset = $+2
-    ld c,(ix+0)  ; smc
+    ld e,(ix+0)  ; E = whether to set paper or ink
 
+    ld c,8  ; row count
+.each_row:
     ld b,8
 .each_line:
     xor a
-    rl c
+    rlc e   ; paper or ink? into carry
     sbc a
     ld h,a
     ld l,a
@@ -98,6 +100,12 @@ draw_finescroll:
     add hl,sp
     ld sp,hl
     djnz .each_line
+
+    ld hl,-$800 + 32
+    add hl,sp
+    ld sp,hl
+    dec c
+    jp nz,.each_row
 
 .save_sp = $+1
     ld sp,$0000

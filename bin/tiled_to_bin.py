@@ -15,6 +15,26 @@ def to_tile_number(firstgid, d):
         return 0
 
 
+def get_extents(data, firstgid, width, height):
+    data_iter = iter(data)
+    left = width
+    right = 0
+    top = height
+    bottom = 0
+    for row in range(height):
+        for column in range(width):
+            d = next(data_iter)
+            if d >= firstgid:
+                left = min(column, left)
+                right = max(column + 1, right)
+                top = min(row, top)
+                bottom = max(row + 1, bottom)
+    if left >= right:
+        return None
+    else:
+        return left, top, right, bottom
+
+
 # def convert_to_binary(tile_numbers, width, height):
 #    """Convert tile numbers in a list to a binary array"""
 #    array_data = array('B')
@@ -49,7 +69,7 @@ def convert_to_binary(tile_numbers, width, height):
     return array_data
 
 
-def convert_tmx(infile, exclude_layers=None):
+def convert_tmx(infile, exclude_layers=None, autocrop=False):
     tree = ET.parse(infile)
 
     # Assuming only one tileset
@@ -63,11 +83,10 @@ def convert_tmx(infile, exclude_layers=None):
         data_node = layer_node.find('data')
         name = layer_node.attrib['name']
         if exclude_layers and exclude_layers.match(name):
-            print(f'Layer "{name}" excluded')
+            print(f'Layer "{name}" excluded - skipped')
             continue
         width = int(layer_node.attrib['width'])
         height = int(layer_node.attrib['height'])
-        print(f'Layer "{name}": {width}x{height}')
 
         encoding = data_node.attrib['encoding']
         if encoding == 'csv':
@@ -78,8 +97,23 @@ def convert_tmx(infile, exclude_layers=None):
             data = struct.unpack('<%dI' % (len(raw_data) / 4), raw_data)
 
         assert len(data) == width * height
-        tile_numbers = [to_tile_number(firstgid, d) for d in data]
-        bin_data = convert_to_binary(tile_numbers, width, height)
+
+        if autocrop:
+            extents = get_extents(data, firstgid, width, height)
+        else:
+            extents = (0, 0, width, height)
+        if extents is None:
+            print(f'Layer "{name}" is empty - skipped')
+            continue
+        left, top, right, bottom = extents
+        print(
+            f'Layer "{name}": {width}x{height} left={left} top={top} right={right} bottom={bottom}')
+        tile_numbers = [
+            to_tile_number(firstgid, data[row * width + column])
+            for row in range(top, bottom)
+            for column in range(left, right)
+        ]
+        bin_data = convert_to_binary(tile_numbers, right - left, bottom - top)
         layers.append((name, bin_data))
 
     return layers
@@ -105,12 +139,16 @@ def main():
         type=re.compile,
         help='Regular expression for layers to exclude from output'
     )
+    parser.add_argument(
+        '--autocrop', default=False, action='store_true',
+        help='Remove empty tiles around each layer'
+    )
 
     args = parser.parse_args()
     if not args.out and not args.layers:
         parser.error('Either give an output filename or --layers flag')
 
-    layers = convert_tmx(args.tmx, args.exclude_layers)
+    layers = convert_tmx(args.tmx, args.exclude_layers, args.autocrop)
 
     if args.layer_filename:
         for name, data in layers:

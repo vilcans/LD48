@@ -9,6 +9,7 @@
 draw_sprite:
     ; B = x
     ; C = y
+    ; DE = preshifted sprite bitmap
 
     ld (save_sp),sp
 

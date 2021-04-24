@@ -6,8 +6,7 @@ visible_height_rows = 24
 
 extra_delay = 2
 
-sprite_min_y = 60
-sprite_max_y = 170
+ship_sprite_y = 96
 
 border MACRO
     ld a,\1
@@ -71,9 +70,12 @@ each_frame:
     border 6
 
     border 5   ; draw sprite
-    ld bc,(ship_sprite_y)  ; set B=x, C=y
+    ; set B=x, C=y
+    ld c,ship_sprite_y
+    ld a,(ship_sprite_x)
+    ld b,a
     ld de,ship_spr
-    ld a,15o
+    ld a,05o
     call draw_colored_sprite
 
     border 0
@@ -164,7 +166,7 @@ finescroll_bits = $+1
 movement:
     ld a,(ship_sprite_x)
     ld b,a
-    ld hl,(ship_pos_y)
+    ld hl,(scroll_pos)
 
     ld a,$fd
     in a,($fe)  ; read key row: GFDSA
@@ -189,29 +191,11 @@ movement:
 .not_up:
     ld a,b
     ld (ship_sprite_x),a
-    ld (ship_pos_y),hl
-    ld de,(scroll_pos)
-    sbc hl,de
-    ld a,l
-    ld (ship_sprite_y),a
-
-    ld hl,(scroll_pos)
-
-    cp sprite_min_y
-    jr nc,.not_above
-    dec hl
-.not_above
-    cp sprite_max_y
-    jr c,.not_below
-    inc hl
-.not_below:
     ld (scroll_pos),hl
     ret
 
 scroll_pos: dw 0
 
-; These two must be following each other, in this order
-ship_sprite_y: db 128
 ship_sprite_x: db map_width*4-8
 
 ship_pos_x: db map_width * 4 - 8

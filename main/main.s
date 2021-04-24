@@ -53,8 +53,12 @@ x_pos = $+1
     ld b,a  ; x
 
 y_pos = $+1
-    ld a,0 ; y
+    ld a,-1 ; y
     inc a
+    cp 192-sprite_height
+    jr nz,.no_wrap
+    xor a
+.no_wrap:
     ld (y_pos),a
     ld c,a
     ld de,ship_spr

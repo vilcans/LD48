@@ -3,6 +3,11 @@
 
 map_width = 20
 
+border MACRO
+    ld a,\1
+    out ($fe),a
+    ENDM
+
     SECTION .text
 main:
     ld hl,screen_addresses
@@ -29,11 +34,13 @@ each_frame:
     ei
     halt
     di
+
+    border 4
     call draw_finescroll
+    border 0
     ;call draw_tiles
 
-    ld a,6
-    out ($fe),a
+    border 6
 
 x_pos = $+1
     ld a,-1 ; x
@@ -47,10 +54,11 @@ y_pos = $+1
     ld (y_pos),a
     ld c,a
     ld de,ship_spr
+
+    border 5
     call draw_sprite
 
-    ld a,0
-    out ($fe),a
+    border 0
 
     jp each_frame
 

@@ -24,6 +24,11 @@ main:
     ld (hl),17o
     ldir
 
+    ld hl,$481f
+    ld (hl),$ff
+    ld hl,$501f
+    ld (hl),$ff
+
     ld hl,ship_spr_source
     ld de,ship_spr
     call preshift_sprite

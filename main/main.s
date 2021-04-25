@@ -17,7 +17,8 @@ start_scroll_pos = 104
 lives_column = map_width + 1
 lives_row = 21
 
-thrust = $0009
+high_thrust = 9
+low_thrust = 4
 gravity = $0002
 
 max_land_speed = $70
@@ -331,7 +332,7 @@ movement:
 .not_left:
     rra
     jp c,.not_down
-    ld de,thrust
+    ld de,(thrust)
     add hl,de
 .not_down:
     rra
@@ -365,8 +366,8 @@ movement:
 
     xor a
     ld (on_ground),a
-    ld de,-thrust
-    add hl,de
+    ld de,(thrust)
+    sbc hl,de
     ld c,$18  ; sound
 .not_up:
     ld a,b
@@ -649,6 +650,7 @@ game_start_spawn_data:
 .ship_sprite_x: db ship_start_x
 .velocity_y: dw 0
 .on_ground: db 1
+.thrust: dw high_thrust
 spawn_data_size = $ - game_start_spawn_data
 
 level_data:
@@ -799,6 +801,7 @@ spawn_scroll_pos_fraction: db 0
 spawn_ship_sprite_x: db 0
 spawn_velocity_y: dw 0
 spawn_on_ground: db 0
+spawn_thrust: dw 0
     IF $-spawn_data != spawn_data_size
     FAIL "spawn_data wrong size"
     ENDIF
@@ -811,6 +814,7 @@ scroll_pos_fraction: db 0
 ship_sprite_x: db 0
 velocity_y: dw 0
 on_ground: db 0
+thrust: dw 0
     IF $-active_data != spawn_data_size
     FAIL "spawn_reset wrong size"
     ENDIF

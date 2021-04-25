@@ -59,7 +59,7 @@ main:
 
 start_life:
     ld hl,spawn_data
-    ld de,spawn_reset_start
+    ld de,active_data
     call copy_spawn_data
     ld hl,(current_level_data)
     call select_level
@@ -137,7 +137,7 @@ each_frame:
     ld (velocity_y+1),a
     inc a
     ld (on_ground),a
-    ld hl,spawn_reset_start
+    ld hl,active_data
     ld de,spawn_data
     call copy_spawn_data
 .landed_done:
@@ -659,13 +659,13 @@ spawn_on_ground: db 0
     ENDIF
 
 ; Data that is reset from spawn_data when ship spawns
-spawn_reset_start:   ; Data that is reset on spawn. Must match spawn_data!
+active_data:   ; Data that is reset on spawn. Must match spawn_data!
 current_level_data: dw 0
 scroll_pos: dw 0
 scroll_pos_fraction: db 0
 ship_sprite_x: db 0
 velocity_y: dw 0
 on_ground: db 0
-    IF $-spawn_reset_start != spawn_data_size
+    IF $-active_data != spawn_data_size
     FAIL "spawn_reset wrong size"
     ENDIF

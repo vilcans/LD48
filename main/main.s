@@ -152,19 +152,22 @@ each_frame:
     ld a,(ship_sprite_x)
     cp ship_max_x + 1
     jp c,.no_exit_right
-    xor a
-    ld (ship_sprite_x),a
-
     ld de,(current_level_exits_right)
     call select_exit
-    jr .after_exit
+    ld a,0  ; over to left edge (don't change carry)
+    jr c,.end_exit_and_save  ; successfully changed level
+    ld a,ship_max_x  ; clamp to right edge
+    jr .end_exit_and_save
 .no_exit_right:
-    or a
-    jp nz,.after_exit
-    ld a,ship_max_x
-    ld (ship_sprite_x),a
+    cp 1
+    jp nc,.after_exit
     ld de,(current_level_exits_left)
     call select_exit
+    ld a,ship_max_x  ; over to right edge
+    jr c,.end_exit_and_save  ; successfully changed level
+    ld a,1  ; clamp to left edge
+.end_exit_and_save:
+    ld (ship_sprite_x),a
 .after_exit:
 
     border 0
@@ -679,6 +682,7 @@ skip_to_next_from_height:
     ; fallthrough
 select_exit:
 ; In: DE = exits data
+; Out: Carry flag set if level changes, otherwise no connection was found
 
     ; HL = ship row
     ld a,(scroll_pos+1)  ; high byte
@@ -701,8 +705,10 @@ select_exit:
     ld a,(de)   ; exit start row, high byte
     inc de
     ld b,a
+    or c        ; check if BC = 0, also clears carry
+    ret z       ; start row == 0 means end of data
 
-    or a  ; clear carry
+    ;or a  ; clear carry
     sbc hl,bc   ; ship_row - exit_start_row
     jr c,skip_to_next_from_height
 
@@ -734,6 +740,7 @@ select_exit:
     ; fallthrough!
 select_level:
 ; In: HL points to level data
+; Out: Carry flag set
     ld (current_level_data),hl
     ld de,current_level_tiles
 
@@ -752,6 +759,7 @@ select_level:
     ld a,h
     ld (de),a
     ;inc de
+    scf
     ret
 
 ship_spr_source:

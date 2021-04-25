@@ -9,8 +9,9 @@ extra_delay = 2
 ship_sprite_row = 12
 ship_sprite_y = ship_sprite_row * 8
 
-ship_start_x = 6*8
+ship_start_x = 5*8
 ship_max_x = map_width * 8 - 16
+start_scroll_pos = 64
 
 lives_column = map_width + 1
 lives_row = 21
@@ -286,6 +287,7 @@ movement:
     ld a,(scroll_pos+1)
     adc e   ; $ff if velocity is negative, otherwise $00
     ld (scroll_pos+1),a
+    call m,clamp_scroll_pos
 
     ; --------------------
     ; Update level pointer
@@ -456,6 +458,15 @@ movement:
     ENDR
     ret
 
+clamp_scroll_pos:
+    xor a
+    ld (scroll_pos),a
+    ld (scroll_pos+1),a
+    ld (scroll_pos_fraction),a
+    ld (velocity_y),a
+    ld (velocity_y+1),a
+    ret
+
 kill:
     call wait_frame
     ld a,7
@@ -485,7 +496,7 @@ copy_spawn_data:
 
 game_start_spawn_data:
 .level: dw level_0_data
-.scroll_pos: dw 0
+.scroll_pos: dw start_scroll_pos
 .scroll_pos_fraction: db 0
 .ship_sprite_x: db ship_start_x
 .velocity_y: dw 0

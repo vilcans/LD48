@@ -144,6 +144,8 @@ each_frame:
     xor a
     ld (velocity_y),a
     ld (velocity_y+1),a
+    inc a
+    ld (on_ground),a
     ld hl,spawn_reset_start
     ld de,spawn_data
     call copy_spawn_data
@@ -281,6 +283,10 @@ movement:
     ld hl,(velocity_y)   ; HL = velocity_y
     ld c,0      ; sound
 
+    ld a,(on_ground)
+    or a
+    jr nz,.is_on_ground
+
     ld a,$fd
     in a,($fe)  ; read key row: GFDSA
     rra
@@ -297,10 +303,12 @@ movement:
     inc b
 .not_right:
 
+.is_on_ground:
     ld a,$fb
     in a,($fe)  ; read key row: TREWQ
     and %10
     jp nz,.not_up
+    ld (on_ground),a  ; =0
     ld de,-thrust
     add hl,de
     ld c,$18
@@ -545,6 +553,7 @@ game_start_spawn_data:
 .scroll_pos_fraction: db 0
 .ship_sprite_x: db ship_start_x
 .velocity_y: dw 0
+.on_ground: db 1
 spawn_data_size = $ - game_start_spawn_data
 
 level_data:
@@ -653,6 +662,7 @@ spawn_scroll_pos: dw 0
 spawn_scroll_pos_fraction: db 0
 spawn_ship_sprite_x: db 0
 spawn_velocity_y: dw 0
+spawn_on_ground: db 0
     IF $-spawn_data != spawn_data_size
     FAIL "spawn_data wrong size"
     ENDIF
@@ -664,6 +674,7 @@ scroll_pos: dw 0
 scroll_pos_fraction: db 0
 ship_sprite_x: db 0
 velocity_y: dw 0
+on_ground: db 0
     IF $-spawn_reset_start != spawn_data_size
     FAIL "spawn_reset wrong size"
     ENDIF

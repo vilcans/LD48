@@ -11,7 +11,6 @@ ld_hl_a = $77
 ld_de_a = $12
 
 draw_colored_sprite:
-    ld ($1000),a
     ; A = attributes
     ; B = x
     ; C = y

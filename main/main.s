@@ -666,12 +666,48 @@ bits_per_scroll:
     db %01111111
 
     SECTION lowmem
+skip_to_next_from_height:
+    ; Skip exit height
+    inc de
+;skip_to_next_from_metadata:
+    ; Skip level metadata
+    inc de
+    inc de
+    ; Skip offset
+    inc de
+    inc de
+    ; fallthrough
 select_exit:
 ; In: DE = exits data
 
-    inc de  ; skip exit start row (word)
+    ; HL = ship row
+    ld a,(scroll_pos+1)  ; high byte
+    ld h,a
+    ld a,(scroll_pos)    ; low byte
+    REPT 3
+    sra h
+    rra
+    ENDR
+    add ship_sprite_row
+    jr nc,.noc
+    inc h
+.noc:
+    ld l,a
+
+    ; BC = exit start row
+    ld a,(de)   ; exit start row, low byte
     inc de
-    inc de  ; skip exit height
+    ld c,a
+    ld a,(de)   ; exit start row, high byte
+    inc de
+    ld b,a
+
+    or a  ; clear carry
+    sbc hl,bc   ; ship_row - exit_start_row
+    jr c,skip_to_next_from_height
+
+    ;ld a,(de)    ; exit height
+    inc de
 
     ; Set HL = level metadata
     ld a,(de) ; level metadata low byte

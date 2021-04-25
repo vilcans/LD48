@@ -19,6 +19,8 @@ lives_row = 21
 thrust = $0009
 gravity = $0002
 
+max_land_speed = $70
+
 map_left_edge = sprite_offset_bytes
 
 border MACRO
@@ -101,11 +103,41 @@ each_frame:
     border 4  ; movement
     call movement
 
-    IF !INVINCIBLE
     ld a,(collisions)
     or a
+    jr z,.no_collision
+    ld b,a
+    and %11111000   ; anything part of the ship but the bottom
+    IF !INVINCIBLE
     jp nz,kill
     ENDIF
+    ld a,(velocity_y+1)
+    or a
+    jp nz,kill
+    ld a,(velocity_y)
+    cp max_land_speed
+    jr c,.landed
+    ; Bounce
+    ld hl,(velocity_y)
+    sra h
+    rr l
+	xor a
+	sub l
+    ld (velocity_y),a
+	sbc a
+	sub h
+	ld (velocity_y+1),a
+    jp .landed_done
+.landed:
+    xor a
+    ld (velocity_y),a
+    ld (velocity_y+1),a
+.landed_done:
+    ld a,(scroll_pos)
+    and $f8
+    ld (scroll_pos),a
+
+.no_collision:
 
     ; Check for exit
     ld a,(ship_sprite_x)

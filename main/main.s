@@ -183,11 +183,29 @@ sound = $+1
     out ($fe),a
 
     ; Update fuel meter
+
     ld a,(current_fuel+1)   ; Get high byte
+    cp fuel_meter_height
+    jp z,.fuel_is_full ; special case: do not draw or refill
     ld c,a
+
     ld a,fuel_meter_height-1
-    sub c
-    jp m,.fuel_is_full  ; special case: do not draw
+    sub c   ; A = how far from top to draw
+    ld b,a  ; save
+
+    ld a,(on_ground)
+    or a
+    jr z,.not_on_ground
+    ld a,(current_fuel+1)  ; high byte
+    ld c,a
+    inc a
+    ld (current_fuel+1),a  ; refuel
+    call draw_fuel_meter_part
+    xor a
+    ld (current_fuel),a  ; clear low byte
+    jp .fuel_done
+.not_on_ground:
+    ld a,b   ; restore
     add fuel_meter_top
     add a  ; double because screen_addresses contains words
     ld h,>(screen_addresses + fuel_meter_top * 2)
@@ -200,6 +218,7 @@ sound = $+1
     ld a,$ff   ; ink is black
     ld (de),a
 .fuel_is_full:
+.fuel_done:
 
     call wait_frame               ; Next frame starts!
 

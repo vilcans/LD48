@@ -3,6 +3,7 @@
     EXTERN save_screen_attributes
     EXTERN restore_screen_attributes
     EXTERN draw_fuel_meter
+    EXTERN draw_fuel_meter_part
 
     INCLUDE "memory.inc"
     INCLUDE "screen.inc"
@@ -13,27 +14,54 @@ init_screen:
     ld hl,screen_addresses
     ld de,$4000 + map_left_edge
     call create_screen_table
-    ;ret
+    ret
 
+draw_fuel_meter_part:
+; Draw one pixel of the fuel meter
+; C = amount left: 0 to fuel_meter_height - 1
+
+    ld a,fuel_meter_height - 1
+    sub c
+    ret m
+    ld c,a
+
+    ld hl,fuel_meter_bitmap
+    ld b,0
+    add hl,bc
+    ld a,(hl)  ; bitmap
+    ex af,af'
+
+    ld hl,screen_addresses + fuel_meter_top * 2
+    or a   ; clear carry
+    rl c
+    add hl,bc
+    ld a,(hl)
+    inc l
+    ld e,a
+    ld a,(hl)
+    ld d,a
+
+    ex af,af'
+    dec e
+    dec e  ; compensate for map_left_edge
+    ld (de),a
+    ret
+
+; Redraw the full fuel meter
 draw_fuel_meter:
     ld (.save_sp),sp
     ld sp,screen_addresses + fuel_meter_top * 2
 
-    pop hl
-    dec l
-    dec l  ; compensate for map_left_edge
-    ld (hl),%00111100 ^ $ff
-    ld b,fuel_meter_height - 2
+    ld de,fuel_meter_bitmap
+    ld b,fuel_meter_height
 .each:
     pop hl
     dec l
     dec l  ; compensate for map_left_edge
-    ld (hl),%01111110 ^ $ff
+    ld a,(de)
+    inc de
+    ld (hl),a
     djnz .each
-    pop hl
-    dec l
-    dec l  ; compensate for map_left_edge
-    ld (hl),%00111100 ^ $ff
 
 .save_sp = $+1
     ld sp,$0000
@@ -96,6 +124,11 @@ restore_screen_attributes:
     ld bc,$300
     ldir
     ret
+
+fuel_meter_bitmap:
+    db %00111100 ^ $ff
+    ds fuel_meter_height - 2, %01111110 ^ $ff
+    db %00111100 ^ $ff
 
     SECTION screen
     INCBIN "screen.scr"

@@ -5,6 +5,7 @@ import struct
 from array import array
 import codecs
 import re
+import json
 
 
 def to_tile_number(firstgid, d):
@@ -69,7 +70,13 @@ def convert_to_binary(tile_numbers, width, height):
     return array_data
 
 
-def convert_tmx(infile, exclude_layers=None, autocrop=False):
+def load_tmx(infile, exclude_layers=None, autocrop=False):
+    """Get data from a Tiled file (tmx).
+
+    Returns (layers, objects) where layer is
+    (name, binary_data, metadata).
+    """
+
     tree = ET.parse(infile)
 
     # Assuming only one tileset
@@ -114,9 +121,26 @@ def convert_tmx(infile, exclude_layers=None, autocrop=False):
             for column in range(left, right)
         ]
         bin_data = convert_to_binary(tile_numbers, right - left, bottom - top)
-        layers.append((name, bin_data))
+        metadata = {
+            'top': top,
+            'left': left,
+            'width': right - left,
+            'height': bottom - top,
+        }
+        layers.append((name, bin_data, metadata))
 
-    return layers
+    objects = {}
+    for object_group in tree.findall('objectgroup'):
+        object_group_name = object_group.attrib['name']
+        for obj in object_group.findall('object'):
+            objects.setdefault(object_group_name, []).append({
+                'x': float(obj.attrib['x']),
+                'y': float(obj.attrib['y']),
+                'width': float(obj.attrib['width']),
+                'height': float(obj.attrib['height']),
+            })
+
+    return layers, objects
 
 
 def main():
@@ -131,6 +155,10 @@ def main():
         help='Binary data',
     )
     parser.add_argument(
+        '--meta', default=None,
+        help='Metadata in JSON format',
+    )
+    parser.add_argument(
         '--layer-filename', required=False,
         help='File name pattern for layers. {0} will be replaced by layer name.',
     )
@@ -143,21 +171,32 @@ def main():
         '--autocrop', default=False, action='store_true',
         help='Remove empty tiles around each layer'
     )
-
     args = parser.parse_args()
     if not args.out and not args.layers:
         parser.error('Either give an output filename or --layers flag')
 
-    layers = convert_tmx(args.tmx, args.exclude_layers, args.autocrop)
+    layers, objects = load_tmx(args.tmx, args.exclude_layers, args.autocrop)
 
     if args.layer_filename:
-        for name, data in layers:
+        for name, data, _metadata in layers:
             filename = args.layer_filename.format(name)
             with open(filename, 'wb') as out:
                 out.write(data)
     else:
-        for name, data in layers:
+        for name, data, _metadata in layers:
             args.out.write(data)
+
+    if args.meta:
+        json.dump({
+            'layers': [
+                {
+                    'name': name,
+                    'data': metadata,
+                }
+                for name, _, metadata in layers
+            ],
+            'objects': objects
+        }, open(args.meta, 'w'), indent=4)
 
 
 if __name__ == '__main__':

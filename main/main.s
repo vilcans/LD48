@@ -10,10 +10,21 @@ extra_delay = 2
 ship_sprite_row = 12
 ship_sprite_y = ship_sprite_row * 8
 
+; Starting position
+    IF START_AT_LEVEL == 0
+starting_level = level_0_data
 ship_start_x = 13*8+2
-ship_max_x = map_width * 8 - 16
 ship_start_row = 25
+    ENDIF
+    IF START_AT_LEVEL == 1
+starting_level = level_1_data
+ship_start_x = 10*8+2
+ship_start_row = 40
+    ENDIF
+
 start_scroll_pos = (ship_start_row - ship_sprite_row) * 8
+
+ship_max_x = map_width * 8 - 16
 
 lives_column = map_width + 1
 lives_row = 21
@@ -43,9 +54,6 @@ main:
     ld (hl),$ff
     ld hl,$501f
     ld (hl),$ff
-
-    ld hl,level_0_data
-    call select_level
 
     ld hl,ship_spr_source
     ld de,ship_spr
@@ -645,7 +653,7 @@ copy_spawn_data:
     ret
 
 game_start_spawn_data:
-.level: dw level_0_data
+.level: dw starting_level
 .scroll_pos: dw start_scroll_pos
 .scroll_pos_fraction: db 0
 .ship_sprite_x: db ship_start_x

@@ -642,10 +642,6 @@ copy_spawn_data:
     ldir
     ret
 
-; What the fuel meter is currently showing
-; 0 is full, then increasing up to fuel_meter_height which is empty
-shown_fuel: db 0
-
 game_start_spawn_data:
 .level: dw level_0_data
 .scroll_pos: dw start_scroll_pos

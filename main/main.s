@@ -90,9 +90,11 @@ each_frame:
     border 4  ; movement
     call movement
 
+    IF !INVINCIBLE
     ld a,(collisions)
     or a
     jp nz,kill
+    ENDIF
 
     border 0
 frame_counter = $+1

@@ -52,19 +52,19 @@ main:
     ld de,ship_spr
     call preshift_sprite
 
+    ld hl,game_start_spawn_data
+    ld de,spawn_data
+    call copy_spawn_data
+
     ;ld a,ship_color
     ld bc,((lives_column * 8 + 4) << 8) | (lives_row * 8 + 4)
     ld de,ship_spr
     call draw_sprite
 
 start_life:
-    ld hl,spawn_reset_start
-    ld de,spawn_reset_start+1
-    ld (hl),0
-    ld bc,spawn_reset_end-spawn_reset_start-1
-    ldir
-    ld a,ship_start_x
-    ld (ship_sprite_x),a
+    ld hl,spawn_data
+    ld de,spawn_reset_start
+    call copy_spawn_data
 
     border 0
     ld bc,$0008  ; additional delay to avoid showing half-drawn tiles
@@ -471,14 +471,18 @@ fill_attributes:
     ldir
     ret
 
-spawn_reset_start:
-scroll_pos: dw 0
-scroll_pos_fraction: db 0
+copy_spawn_data:
+    ; The correct size, from HL to DE
+    ld bc,spawn_data_size
+    ldir
+    ret
 
-ship_sprite_x: db 0
-
-velocity_y: dw 0
-spawn_reset_end:
+game_start_spawn_data:
+.scroll_pos: dw 0
+.scroll_pos_fraction: db 0
+.ship_sprite_x: db ship_start_x
+.velocity_y: dw 0
+spawn_data_size = $ - game_start_spawn_data
 
 level_data:
     INCBIN "levels.dat"
@@ -568,3 +572,23 @@ collisions:
 current_level_tiles:    dsw 1
 current_level_exits_right:    dsw 1
 current_level_exits_left:    dsw 1
+
+; Reset to this when respawning ship
+spawn_data:
+spawn_scroll_pos: dw 0
+spawn_scroll_pos_fraction: db 0
+spawn_ship_sprite_x: db 0
+spawn_velocity_y: dw 0
+    IF $-spawn_data != spawn_data_size
+    FAIL "spawn_data wrong size"
+    ENDIF
+
+; Data that is reset from spawn_data when ship spawns
+spawn_reset_start:   ; Data that is reset on spawn. Must match spawn_data!
+scroll_pos: dw 0
+scroll_pos_fraction: db 0
+ship_sprite_x: db 0
+velocity_y: dw 0
+    IF $-spawn_reset_start != spawn_data_size
+    FAIL "spawn_reset wrong size"
+    ENDIF

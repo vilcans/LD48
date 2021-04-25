@@ -26,7 +26,7 @@ $(OBJS): $(GENERATED)
 
 $(MODULE).bin: $(OBJS) ../link.lds
 	#$(MAKE) -C .. $(ADDITIONAL_MODULES)
-	$(VLINK) -M -T../link.lds -brawbin2 -o $@ $(OBJS)
+	$(VLINK) -Msections.txt -T../link.lds -brawbin2 -o $@ $(OBJS)
 
 # Disassemble the assembled code
 disassemble: $(MODULE).bin

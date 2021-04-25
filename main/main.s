@@ -9,9 +9,9 @@ extra_delay = 2
 ship_sprite_row = 12
 ship_sprite_y = ship_sprite_row * 8
 
-ship_start_x = 5*8
+ship_start_x = 13*8+2
 ship_max_x = map_width * 8 - 16
-start_scroll_pos = 64
+start_scroll_pos = 104
 
 lives_column = map_width + 1
 lives_row = 21

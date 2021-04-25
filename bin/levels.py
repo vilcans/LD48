@@ -101,7 +101,10 @@ def main():
                 out.write('\n'.join([
                     f'.level_{layer_number}_exits_{side}:',
                 ]) + '\n')
-                for (connected_layer, this_layer) in side_connections:
+                for (connected_layer, this_layer) in sorted(
+                    side_connections, reverse=True,
+                    key=lambda compare_layers: compare_layers[1][1].start
+                ):
                     _, exit_rows = this_layer
                     connected_layer_number, _ = connected_layer
                     this_top = this_metadata['top']

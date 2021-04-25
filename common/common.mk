@@ -9,11 +9,12 @@ FUSE_ARGS=--no-confirm-actions --graphics-filter tv2x --machine 48
 FUSE=fuse $(FUSE_ARGS)
 
 INVINCIBLE = 0
+RELEASE = 0
 
 # Must match LOWMEM in link.lds
 LOWMEM = 7800
 MEM_BOTTOM = $(LOWMEM)
-DEFINES = -DLOWMEM='$$${LOWMEM}' -DINVINCIBLE=$(INVINCIBLE)
+DEFINES = -DLOWMEM='$$${LOWMEM}' -DINVINCIBLE=$(INVINCIBLE) -DRELEASE=$(RELEASE)
 
 #	-Dstart_address=\$$$(START_ADDRESS_HEX) \
 #	-Dload_address=\$$$(LOAD_ADDRESS_HEX) \

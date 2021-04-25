@@ -21,8 +21,10 @@ thrust = $0009
 gravity = $0002
 
 border MACRO
+    IF !RELEASE
     ld a,\1
     out ($fe),a
+    ENDIF
     ENDM
 
     SECTION .text

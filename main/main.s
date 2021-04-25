@@ -38,6 +38,8 @@ border MACRO
 
     SECTION .text
 main:
+    call save_screen_attributes
+
     ld hl,screen_addresses
     ld de,$4000 + map_left_edge
     call create_screen_table
@@ -565,9 +567,39 @@ kill:
 
     ld a,77o
     call fill_attributes
+
+    ld d,$02  ; Use ROM for noise
+    ld hl,$4fff
+.blast:
+    ld a,h
+    cpl
+.delay:
+    dec a
+    jr nz,.delay
+    ld a,(de)
+    inc de
+    cp h
+    rla
+    and 1
+    rla
+    rla
+    rla
+    ld c,a
+    rla
+    or c
+    or 7  ; border
+    out ($fe),a
+
+    ld bc,-$0010
+    add hl,bc
+    ld a,h
+    or a
+    jp nz,.blast
+
     call wait_frame
     xor a
     out ($fe),a
+    call restore_screen_attributes
 
     jp start_life
 

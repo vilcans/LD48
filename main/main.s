@@ -424,7 +424,8 @@ movement:
     ld e,07o  ; mask
 
     ; Debug draw top
-.addr SET $5800 + (lives_column + lives_row * $20);
+.debug_draw_addr = $5800 + (lives_column + lives_row * $20) + map_left_edge
+.addr SET .debug_draw_addr
     REPT 3
     rl c
     sbc a
@@ -434,7 +435,7 @@ movement:
     ENDR
 
     ; Debug draw middle
-.addr SET $5800 + (lives_column + (lives_row + 1) * $20);
+.addr SET .debug_draw_addr + $20
     rl c
     sbc a
     and e
@@ -445,7 +446,7 @@ movement:
     ld (.addr + 2),a
 
     ; Debug draw bottom
-.addr SET $5800 + (lives_column + (lives_row + 2) * $20);
+.addr SET .debug_draw_addr + $40
     REPT 3
     rl c
     sbc a

@@ -23,6 +23,12 @@ max_land_speed = $70
 
 map_left_edge = sprite_offset_bytes
 
+fuel_meter_top = 18 * 8
+fuel_meter_left_offset = 1
+fuel_meter_height = 5 * 8
+max_fuel = (fuel_meter_height << 8)
+fuel_usage = 90
+
 border MACRO
     IF !RELEASE
     ld a,\1
@@ -61,6 +67,8 @@ start_life:
     ld hl,spawn_data
     ld de,active_data
     call copy_spawn_data
+    ld hl,max_fuel
+    ld (current_fuel),hl
     ld hl,(current_level_data)
     call select_level
 
@@ -177,6 +185,25 @@ sound = $+1
     ld a,0
     and b
     out ($fe),a
+
+    ; Update fuel meter
+    ld a,(current_fuel+1)   ; Get high byte
+    ld c,a
+    ld a,fuel_meter_height-1
+    sub c
+    jp m,.fuel_is_full  ; special case: do not draw
+    add fuel_meter_top
+    add a  ; double because screen_addresses contains words
+    ld h,>(screen_addresses + fuel_meter_top * 2)
+    ld l,a
+    ld e,(hl)
+    inc hl
+    ld d,(hl)
+    dec e  ; meter is to the left of the screen area
+    dec e
+    ld a,$ff   ; ink is black
+    ld (de),a
+.fuel_is_full:
 
     call wait_frame               ; Next frame starts!
 
@@ -299,10 +326,30 @@ movement:
     in a,($fe)  ; read key row: TREWQ
     and %10
     jp nz,.not_up
-    ld (on_ground),a  ; =0
+
+    exx         ; Get a fresh HL to work with
+    ld a,(current_fuel+1)
+    ld h,a
+    ld a,(current_fuel)
+    ld l,a
+    or h
+    exx
+    jr z,.not_up
+    exx
+
+    ld de,-fuel_usage
+    add hl,de
+    jp c,.not_out
+    ld hl,0
+.not_out:
+    ld (current_fuel),hl
+    exx         ; Restore
+
+    xor a
+    ld (on_ground),a
     ld de,-thrust
     add hl,de
-    ld c,$18
+    ld c,$18  ; sound
 .not_up:
     ld a,b
     ld (ship_sprite_x),a
@@ -538,6 +585,10 @@ copy_spawn_data:
     ldir
     ret
 
+; What the fuel meter is currently showing
+; 0 is full, then increasing up to fuel_meter_height which is empty
+shown_fuel: db 0
+
 game_start_spawn_data:
 .level: dw level_0_data
 .scroll_pos: dw start_scroll_pos
@@ -669,3 +720,5 @@ on_ground: db 0
     IF $-active_data != spawn_data_size
     FAIL "spawn_reset wrong size"
     ENDIF
+
+current_fuel: ds 2

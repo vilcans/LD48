@@ -43,6 +43,9 @@ draw_colored_sprite:
     rl h
     add a
     rl h
+    IF sprite_offset_bytes != 0
+    add sprite_offset_bytes
+    ENDIF
     ld l,a   ; screen address low byte
     ld a,h   ; screen address high byte
     add $58  ; attributes at $5800

@@ -20,6 +20,8 @@ ship_color = 05o
 thrust = $0009
 gravity = $0002
 
+map_left_edge = sprite_offset_bytes
+
 border MACRO
     IF !RELEASE
     ld a,\1
@@ -30,7 +32,7 @@ border MACRO
     SECTION .text
 main:
     ld hl,screen_addresses
-    ld de,$4000
+    ld de,$4000 + map_left_edge
     call create_screen_table
 
     ld hl,$4000
@@ -84,7 +86,7 @@ each_frame:
     call prepare_finescroll
 
     border 1  ; top third finescroll
-    ld hl,$4000+map_width
+    ld hl,$4000+map_left_edge+map_width
     call draw_finescroll_third
 
     border 0
@@ -143,10 +145,10 @@ sound = $+1
     call wait_frame               ; Next frame starts!
 
     border 2  ; middle third finescroll
-    ld hl,$4800+map_width
+    ld hl,$4800+map_left_edge+map_width
     call draw_finescroll_third
     border 3   ; bottom finescroll
-    ld hl,$5000+map_width
+    ld hl,$5000+map_left_edge+map_width
     call draw_finescroll_third
     border 6
 
@@ -167,7 +169,7 @@ draw_tiles:
 level_ptr = $+1
     ld hl,$0000
 
-    ld de,$5800
+    ld de,$5800+map_left_edge
     ld a,visible_height_rows  ; row counter
 .each_row:
     REPT map_width
@@ -189,7 +191,7 @@ prepare_finescroll:
     ld (.offset),a
     ld ix,bits_per_scroll
 .offset = $+2
-    ld a,(ix+0)  ; E = whether to set paper or ink
+    ld a,(ix+0)  ; A = whether to set paper or ink
     ld ($401f),a
     ld (finescroll_bits),a
     ret

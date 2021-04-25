@@ -9,4 +9,4 @@ sprite_visible_width = 15
 ; Must be same as sprite_height if I don't fix that there will be garbage below the sprite otherwise
 sprite_visible_height = 16
 
-sprite_offset_bytes = 2
+sprite_offset_bytes = 3

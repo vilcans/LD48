@@ -65,6 +65,8 @@ start_life:
     ld hl,spawn_data
     ld de,spawn_reset_start
     call copy_spawn_data
+    ld hl,(current_level_data)
+    call select_level
 
     border 0
     ld bc,$0008  ; additional delay to avoid showing half-drawn tiles
@@ -478,6 +480,7 @@ copy_spawn_data:
     ret
 
 game_start_spawn_data:
+.level: dw level_0_data
 .scroll_pos: dw 0
 .scroll_pos_fraction: db 0
 .ship_sprite_x: db ship_start_x
@@ -530,6 +533,7 @@ select_exit:
     ; fallthrough!
 select_level:
 ; In: HL points to level data
+    ld (current_level_data),hl
     ld de,current_level_tiles
 
     ; Copy current_level_tiles and current_level_exits_right
@@ -575,6 +579,7 @@ current_level_exits_left:    dsw 1
 
 ; Reset to this when respawning ship
 spawn_data:
+spawn_level_data: dw 0
 spawn_scroll_pos: dw 0
 spawn_scroll_pos_fraction: db 0
 spawn_ship_sprite_x: db 0
@@ -585,6 +590,7 @@ spawn_velocity_y: dw 0
 
 ; Data that is reset from spawn_data when ship spawns
 spawn_reset_start:   ; Data that is reset on spawn. Must match spawn_data!
+current_level_data: dw 0
 scroll_pos: dw 0
 scroll_pos_fraction: db 0
 ship_sprite_x: db 0

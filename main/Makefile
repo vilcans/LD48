@@ -2,9 +2,10 @@ MODULE = main
 SOURCES = $(MODULE).s
 DEPENDENCIES = ../sprites/sprites.o ../screentab/screentab.o
 GENERATED = ship.spr \
-	level.dat
+	levels.dat \
+	leveldata.inc
 
 include ../common/part.mk
 
-level.dat: ../map/level.tmx
-	python $(BIN_DIR)/tiled_to_bin.py --autocrop --exclude-layers=helper $< $@
+levels.dat levels.inc: ../map/level.tmx
+	PYTHONPATH=$(BIN_DIR) python $(BIN_DIR)/levels.py $< levels.dat leveldata.inc

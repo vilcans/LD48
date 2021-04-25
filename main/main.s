@@ -456,7 +456,7 @@ velocity_y: dw 0
 spawn_reset_end:
 
 level:
-    INCBIN "level.dat"
+    INCBIN "levels.dat"
 
 bits_per_scroll:
     db %00000000

@@ -5,4 +5,5 @@ main.o
 main.o.lst
 main.z80
 ship.spr
-level.dat
+levels.dat
+leveldata.inc

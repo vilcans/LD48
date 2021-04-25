@@ -25,6 +25,9 @@ def main():
     layers, objects = load_tmx(
         args.tmx, exclude_layers=re.compile('helper'), autocrop=True)
 
+    for name, data, metadata in layers:
+        assert metadata['width'] == 20, f"Wrong width on layer {name}: {metadata['width']}"
+
     bin_out = BytesIO()
     data_offsets = []
     for _name, data, _metadata in layers:

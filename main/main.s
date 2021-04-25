@@ -139,6 +139,9 @@ each_frame:
     xor a
     ld (velocity_y),a
     ld (velocity_y+1),a
+    ld hl,spawn_reset_start
+    ld de,spawn_data
+    call copy_spawn_data
 .landed_done:
     ld a,(scroll_pos)
     and $f8

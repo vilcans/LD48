@@ -1,6 +1,6 @@
 MODULE = screen
 SOURCES = test_screen.s $(MODULE).s
-DEPENDENCIES =
+DEPENDENCIES = ../screentab/screentab.o
 GENERATED = screen.scr
 
 include ../common/part.mk

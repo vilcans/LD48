@@ -1,9 +1,14 @@
     SECTION .text
 
+    call init_screen
+
     ld hl,$4000
     ld de,save_screen
     ld bc,$1b00
     ldir
+
+    ld a,2     ; original
+    call wait
 
 p:
     ld hl,save_screen
@@ -49,6 +54,6 @@ wait:
     djnz .w
     ret
 
-    SECTION .bss
+    SECTION .bss,"uR"
 save_screen:
     ds $1b00

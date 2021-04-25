@@ -1,5 +1,6 @@
     INCLUDE "memory.inc"
     INCLUDE "sprites.inc"
+    INCLUDE "screen.inc"
 
 map_width = 20
 visible_height_rows = 24
@@ -21,11 +22,6 @@ gravity = $0002
 
 max_land_speed = $70
 
-map_left_edge = sprite_offset_bytes
-
-fuel_meter_top = 18 * 8
-fuel_meter_left_offset = 1
-fuel_meter_height = 5 * 8
 max_fuel = (fuel_meter_height << 8)
 fuel_usage = 90
 
@@ -38,11 +34,8 @@ border MACRO
 
     SECTION .text
 main:
+    call init_screen
     call save_screen_attributes
-
-    ld hl,screen_addresses
-    ld de,$4000 + map_left_edge
-    call create_screen_table
 
     ld hl,$481f
     ld (hl),$ff
@@ -66,6 +59,7 @@ main:
     call draw_sprite
 
 start_life:
+    call draw_fuel_meter
     ld hl,spawn_data
     ld de,active_data
     call copy_spawn_data

@@ -7,5 +7,5 @@ GENERATED = ship.spr \
 
 include ../common/part.mk
 
-levels.dat levels.inc: ../map/level.tmx
+levels.dat leveldata.inc: ../map/level.tmx
 	PYTHONPATH=$(BIN_DIR) python $(BIN_DIR)/levels.py $< levels.dat leveldata.inc

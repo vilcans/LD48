@@ -94,6 +94,14 @@ def load_tmx(infile, exclude_layers=None, autocrop=False):
             continue
         width = int(layer_node.attrib['width'])
         height = int(layer_node.attrib['height'])
+        properties_node = layer_node.find('properties')
+        if properties_node:
+            properties = {
+                node.attrib['name']: node.attrib['value']
+                for node in properties_node.findall('property')
+            }
+        else:
+            properties = {}
 
         encoding = data_node.attrib['encoding']
         if encoding == 'csv':
@@ -126,6 +134,7 @@ def load_tmx(infile, exclude_layers=None, autocrop=False):
             'left': left,
             'width': right - left,
             'height': bottom - top,
+            'properties': properties
         }
         layers.append((name, bin_data, metadata))
 

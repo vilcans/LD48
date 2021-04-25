@@ -15,8 +15,6 @@ ship_max_x = map_width * 8 - 16
 lives_column = map_width + 1
 lives_row = 21
 
-ship_color = 05o
-
 thrust = $0009
 gravity = $0002
 
@@ -60,7 +58,7 @@ main:
     ld de,spawn_data
     call copy_spawn_data
 
-    ;ld a,ship_color
+    ;ld a,(ship_color)
     ld bc,((lives_column * 8 + 4) << 8) | (lives_row * 8 + 4)
     ld de,ship_spr
     call draw_sprite
@@ -158,7 +156,8 @@ sound = $+1
     ld a,(ship_sprite_x)
     ld b,a
     ld de,ship_spr
-    ld a,ship_color
+ship_color = $+1
+    ld a,$01
     call draw_colored_sprite
 
     border 0
@@ -543,6 +542,11 @@ select_level:
     ; Copy current_level_tiles and current_level_exits_right
     ld bc,4
     ldir
+
+    ld a,(hl)  ; ship_color
+    inc hl
+    ld (ship_color),a
+
     ; Now HL points at exits_left
     ld a,l
     ld (de),a
@@ -560,6 +564,7 @@ levels:
     ; level_0_data:
     ; 	dw level_data + 0
     ; 	dw level_0_exits_right
+    ;	db 17o  ; ship color
     ; level_0_exits_left:
     ; 	db 0,0,0  ; end
     ; level_0_exits_right:

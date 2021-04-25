@@ -75,11 +75,13 @@ def main():
 
     with open(args.meta, 'w') as out:
         for layer_number, ((name, data, this_metadata), offset) in enumerate(zip(layers, data_offsets)):
+            ship_color = this_metadata["properties"].get('ship_color', '05o')
             out.write('\n'.join([
                 f'; Level {layer_number} ("{name}")',
                 f'level_{layer_number}_data:',
                 f'\tdw level_data + {offset}',
                 f'\tdw .level_{layer_number}_exits_right',
+                f'\tdb {ship_color}  ; ship color',
             ]) + '\n')
 
             left_connections = [

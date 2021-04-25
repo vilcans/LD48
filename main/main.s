@@ -10,6 +10,7 @@ ship_sprite_row = 12
 ship_sprite_y = ship_sprite_row * 8
 
 ship_start_x = 6*8
+ship_max_x = map_width * 8 - 16
 
 lives_column = map_width + 1
 lives_row = 21
@@ -103,34 +104,22 @@ each_frame:
 
     ; Check for exit
     ld a,(ship_sprite_x)
-    cp map_width * 8 - 16 + 1
+    cp ship_max_x + 1
     jp c,.no_exit_right
     xor a
     ld (ship_sprite_x),a
 
     ld de,(current_level_exits_right)
-    inc de  ; skip exit start row (word)
-    inc de
-    inc de  ; skip exit height
-    ld a,(de) ; level metadata low byte
-    inc de
-    ld l,a
-    ld a,(de) ; level metadata high byte
-    inc de
-    ld h,a
-    ld a,(de)  ; scroll pos offset low byte
-    inc de
-    ld c,a
-    ld a,(de)  ; scroll pos offset high byte
-    inc de
-    ld b,a
-
-    ld hl,(scroll_pos)
-    add hl,bc
-    ld (scroll_pos),hl
-    ld hl,level_1_data
-    call select_level
+    call select_exit
+    jr .after_exit
 .no_exit_right:
+    or a
+    jp nz,.after_exit
+    ld a,ship_max_x
+    ld (ship_sprite_x),a
+    ld de,(current_level_exits_left)
+    call select_exit
+.after_exit:
 
     border 0
 frame_counter = $+1
@@ -505,6 +494,36 @@ bits_per_scroll:
     db %01111111
 
     SECTION lowmem
+select_exit:
+; In: DE = exits data
+
+    inc de  ; skip exit start row (word)
+    inc de
+    inc de  ; skip exit height
+
+    ; Set HL = level metadata
+    ld a,(de) ; level metadata low byte
+    inc de
+    ld l,a
+    ld a,(de) ; level metadata high byte
+    inc de
+    ld h,a
+
+    ; Set BC = scroll pos offset
+    ld a,(de)  ; scroll pos offset low byte
+    inc de
+    ld c,a
+    ld a,(de)  ; scroll pos offset high byte
+    inc de
+    ld b,a
+
+    ex de,hl
+    ld hl,(scroll_pos)
+    add hl,bc
+    ld (scroll_pos),hl
+    ex de,hl
+    ; HL is now level data
+    ; fallthrough!
 select_level:
 ; In: HL points to level data
     ld de,current_level_tiles

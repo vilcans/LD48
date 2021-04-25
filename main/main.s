@@ -519,13 +519,20 @@ movement:
 
     ld a,c
     cpl
+    IF !RELEASE
     ld ($423f),a   ; collisions unmasked
+    ENDIF
     and b
+    IF !RELEASE
     ld ($443f),a   ; collision masked
+    ENDIF
     ld (collisions),a
     ld a,b
+    IF !RELEASE
     ld ($433f),a   ; collision mask
+    ENDIF
 
+    IF !RELEASE
     ; Debug draw collisions
     ld a,(collisions)
     ld c,a
@@ -562,6 +569,8 @@ movement:
     ld (.addr),a
 .addr SET .addr + 1
     ENDR
+
+    ENDIF  ; IF !RELEASE
     ret
 
 clamp_scroll_pos:

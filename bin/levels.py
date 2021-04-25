@@ -25,8 +25,9 @@ def main():
     layers, objects = load_tmx(
         args.tmx, exclude_layers=re.compile('helper'), autocrop=True)
 
-    for name, data, metadata in layers:
+    for layer_num, (name, data, metadata) in enumerate(layers):
         assert metadata['width'] == 20, f"Wrong width on layer {name}: {metadata['width']}"
+        print(f'Layer {layer_num}: {name}')
 
     bin_out = BytesIO()
     data_offsets = []
@@ -37,7 +38,7 @@ def main():
     connections = []
 
     for obj in objects['connections']:
-        print('Obj', obj)
+        print('Finding rooms for object:', obj)
         column_range = range(
             floor(obj['x'] // 8),
             ceil((obj['x'] + obj['width']) // 8)
@@ -52,15 +53,18 @@ def main():
         for layer_number, (layer_name, _, metadata) in enumerate(layers):
             layer_rows = range(
                 metadata['top'], metadata['top'] + metadata['height'])
-            print(
-                f'Trying layer {layer_name} ({metadata}) for rows {row_range} and columns {column_range}')
+            #print(f'Trying layer {layer_name} ({metadata}) for rows {row_range} and columns {column_range}')
             if not (set(layer_rows) & set(row_range)):
-                print('Not in vertical range')
+                #print('Not in vertical range')
                 continue
             if metadata['left'] in column_range:
+                print(
+                    f'Adding layer {layer_name} ({metadata}) as a right connection')
                 assert right_layer is None, f'Multiple layers at the right. Previous: {right_layer}'
                 right_layer = (layer_number, row_range)
             if (metadata['left'] + metadata['width']) in column_range:
+                print(
+                    f'Adding layer {layer_name} ({metadata}) as a left connection')
                 assert left_layer is None, f'Multiple layers at the left. Previous: {left_layer}'
                 left_layer = (layer_number, row_range)
         assert left_layer and right_layer, \

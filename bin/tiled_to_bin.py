@@ -143,6 +143,7 @@ def load_tmx(infile, exclude_layers=None, autocrop=False):
         object_group_name = object_group.attrib['name']
         for obj in object_group.findall('object'):
             objects.setdefault(object_group_name, []).append({
+                'id': int(obj.attrib['id']),
                 'x': float(obj.attrib['x']),
                 'y': float(obj.attrib['y']),
                 'width': float(obj.attrib['width']),

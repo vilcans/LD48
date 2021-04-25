@@ -154,7 +154,7 @@ each_frame:
     jp c,.no_exit_right
     ld de,(current_level_exits_right)
     call select_exit
-    ld a,0  ; over to left edge (don't change carry)
+    ld a,1  ; over to left edge
     jr c,.end_exit_and_save  ; successfully changed level
     ld a,ship_max_x  ; clamp to right edge
     jr .end_exit_and_save
@@ -163,7 +163,7 @@ each_frame:
     jp nc,.after_exit
     ld de,(current_level_exits_left)
     call select_exit
-    ld a,ship_max_x  ; over to right edge
+    ld a,ship_max_x - 1  ; over to right edge
     jr c,.end_exit_and_save  ; successfully changed level
     ld a,1  ; clamp to left edge
 .end_exit_and_save:

@@ -13,7 +13,7 @@ RELEASE = 0
 
 # Must match LOWMEM in link.lds
 LOWMEM = 7800
-MEM_BOTTOM = $(LOWMEM)
+MEM_BOTTOM = 4000
 DEFINES = -DLOWMEM='$$${LOWMEM}' -DINVINCIBLE=$(INVINCIBLE) -DRELEASE=$(RELEASE)
 
 #	-Dstart_address=\$$$(START_ADDRESS_HEX) \
@@ -29,7 +29,7 @@ ASM_FLAGS = \
 	$(VASM) $(ASM_FLAGS) -Fvobj -L $@.lst -o $@ $<
 
 %.z80: %.bin
-	python $(BIN_DIR)/snap.py --machine=48 --start='0x${MEM_BOTTOM}' $< $@
+	python $(BIN_DIR)/snap.py --machine=48 --start='0x${MEM_BOTTOM}' --pc='0x${LOWMEM}' $< $@
 
 %.spr: %.png
 	python $(BIN_DIR)/convert_image.py $< $@

@@ -4,7 +4,13 @@ SECTIONS {
     /* screentable hardcoded to be at $8000, $180 bytes */
     HIGHMEM = 0x8180;
 
-    lowmem LOWMEM : AT(LOWMEM) {
+    screen 0x4000 : AT(0x4000) {
+        . = 0x4000;
+        *.o(screen)
+    }
+
+    lowmem : {
+        . = LOWMEM;
         *.o(lowmem)
         LOWMEM_END = .;
         ASSERT(. <= HIGHMEM, "Lowmem too large");

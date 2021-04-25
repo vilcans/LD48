@@ -36,15 +36,6 @@ main:
     ld de,$4000 + map_left_edge
     call create_screen_table
 
-    ld hl,$4000
-    ld de,$4001
-    ld (hl),$00
-    ld bc,$1800
-    ldir
-    ld bc,$2ff
-    ld (hl),17o
-    ldir
-
     ld hl,$481f
     ld (hl),$ff
     ld hl,$501f

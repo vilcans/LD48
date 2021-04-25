@@ -177,7 +177,10 @@ def write_header(out, s128, pc=0x0000):
     write_bytes(0)
 
 
-def create_snapshot(source_file, destination_file, start_address, s128):
+def create_snapshot(source_file, destination_file, start_address, program_counter, s128):
+    """start_address is the address of the first byte in source_file.
+    """
+
     # Fill lower memory with zeroes
     dump = b'\0' * start_address
     dump += open(source_file, 'rb').read()
@@ -202,7 +205,7 @@ def create_snapshot(source_file, destination_file, start_address, s128):
     # assert len(header) == 87
 
     with open(destination_file, 'wb') as out:
-        write_header(out, s128, pc=start_address)
+        write_header(out, s128, pc=program_counter)
 
         if s128:
             included_pages = range(8)
@@ -225,6 +228,11 @@ def main():
         required=True,
         help='Start address of memory dump, hex (with 0x prefix) or decimal')
     parser.add_argument(
+        '--pc', metavar='ADDRESS',
+        type=lambda v: int(v, 0),
+        required=True,
+        help='Initial value for PC register')
+    parser.add_argument(
         '--machine', choices=('48', '128'),
         default='48',
         help='Machine type for snapshot'
@@ -238,6 +246,7 @@ def main():
     create_snapshot(
         args.source, args.destination,
         start_address=args.start,
+        program_counter=args.pc,
         s128=args.machine == '128'
     )
 

@@ -121,6 +121,11 @@ each_frame:
     IF !INVINCIBLE
     jp nz,kill
     ENDIF
+
+    ld a,(scroll_pos)
+    and $f8
+    ld (scroll_pos),a
+
     ld a,(velocity_y)
     cp max_land_speed
     jr c,.landed
@@ -143,9 +148,6 @@ each_frame:
     ld de,spawn_data
     call copy_spawn_data
 .landed_done:
-    ld a,(scroll_pos)
-    and $f8
-    ld (scroll_pos),a
 
 .no_collision:
 

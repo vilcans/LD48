@@ -111,9 +111,16 @@ each_frame:
     IF !INVINCIBLE
     jp nz,kill
     ENDIF
+    ld a,(bottom_middle_tile)
+    cp 70o
+    IF !INVINCIBLE
+    jp nz,kill
+    ENDIF
     ld a,(velocity_y+1)
     or a
+    IF !INVINCIBLE
     jp nz,kill
+    ENDIF
     ld a,(velocity_y)
     cp max_land_speed
     jr c,.landed
@@ -408,6 +415,7 @@ movement:
     ; Bottom middle
     inc hl
     .get_collision
+    ld (bottom_middle_tile),a  ; save for checking for landing
     ; Bottom right
     inc hl
     .get_collision
@@ -629,6 +637,9 @@ collisions:
 current_level_tiles:    dsw 1
 current_level_exits_right:    dsw 1
 current_level_exits_left:    dsw 1
+
+; Last detected tile at the bottom of the ship
+bottom_middle_tile: ds 1
 
 ; Reset to this when respawning ship
 spawn_data:

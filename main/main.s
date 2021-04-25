@@ -23,7 +23,7 @@ gravity = $0002
 max_land_speed = $70
 
 max_fuel = (fuel_meter_height << 8)
-fuel_usage = 90
+fuel_usage = 9
 
 border MACRO
     IF !RELEASE

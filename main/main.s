@@ -44,6 +44,9 @@ main:
     ld hl,$501f
     ld (hl),$ff
 
+    ld hl,level_0_data
+    call select_level
+
     ld hl,ship_spr_source
     ld de,ship_spr
     call preshift_sprite
@@ -68,6 +71,8 @@ start_life:
     djnz .delay  ; 3323 cycles
     dec c
     jr nz,.delay
+
+    call movement  ; updates level_ptr, so needs to be run once to initialize
 
 each_frame:
     border 6
@@ -95,6 +100,37 @@ each_frame:
     or a
     jp nz,kill
     ENDIF
+
+    ; Check for exit
+    ld a,(ship_sprite_x)
+    cp map_width * 8 - 16 + 1
+    jp c,.no_exit_right
+    xor a
+    ld (ship_sprite_x),a
+
+    ld de,(current_level_exits_right)
+    inc de  ; skip exit start row (word)
+    inc de
+    inc de  ; skip exit height
+    ld a,(de) ; level metadata low byte
+    inc de
+    ld l,a
+    ld a,(de) ; level metadata high byte
+    inc de
+    ld h,a
+    ld a,(de)  ; scroll pos offset low byte
+    inc de
+    ld c,a
+    ld a,(de)  ; scroll pos offset high byte
+    inc de
+    ld b,a
+
+    ld hl,(scroll_pos)
+    add hl,bc
+    ld (scroll_pos),hl
+    ld hl,level_1_data
+    call select_level
+.no_exit_right:
 
     border 0
 frame_counter = $+1
@@ -136,7 +172,7 @@ sound = $+1
 
 draw_tiles:
 level_ptr = $+1
-    ld hl,level
+    ld hl,$0000
 
     ld de,$5800
     ld a,visible_height_rows  ; row counter
@@ -275,7 +311,7 @@ movement:
     ld l,a
     add hl,de  ; *20
 
-    ld de,level
+    ld de,(current_level_tiles)
     add hl,de
     ld (level_ptr),hl
 
@@ -455,7 +491,7 @@ ship_sprite_x: db 0
 velocity_y: dw 0
 spawn_reset_end:
 
-level:
+level_data:
     INCBIN "levels.dat"
 
 bits_per_scroll:
@@ -469,8 +505,39 @@ bits_per_scroll:
     db %01111111
 
     SECTION lowmem
+select_level:
+; In: HL points to level data
+    ld de,current_level_tiles
+
+    ; Copy current_level_tiles and current_level_exits_right
+    ld bc,4
+    ldir
+    ; Now HL points at exits_left
+    ld a,l
+    ld (de),a
+    inc de
+    ld a,h
+    ld (de),a
+    ;inc de
+    ret
+
 ship_spr_source:
     INCBIN "ship.spr"
+
+levels:
+    ; Format:
+    ; level_0_data:
+    ; 	dw level_data + 0
+    ; 	dw level_0_exits_right
+    ; level_0_exits_left:
+    ; 	db 0,0,0  ; end
+    ; level_0_exits_right:
+    ; 	dw 31 ; exit start row
+    ; 	db 8 ; exit height
+    ; 	dw level_1_data ; level1
+    ; 	dw -168  ; that level is -21 tiles offset
+    ; 	db 0,0,0  ; end
+    INCLUDE "leveldata.inc"
 
     SECTION .bss,"uR"
 ship_spr:
@@ -478,3 +545,7 @@ ship_spr:
 
 collisions:
     ds 1
+
+current_level_tiles:    dsw 1
+current_level_exits_right:    dsw 1
+current_level_exits_left:    dsw 1

@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>The Crown of the Mountain King</title>
+    <script src="jdataview.js"></script>
+    <script src="jsspeccy-core.min.js"></script>
+    <script>
+        function go() {
+            var jsspeccy = JSSpeccy('speccy', {
+                'autostart': true,
+                'autoload': true,
+                'scaleFactor': 2,
+                'loadFile': 'CrownOfTheMountainKing-1.0.z80'
+            });
+        }
+    </script>
+    <style>
+        * {
+            text-align: center;
+            font-size: 0.9em;
+        }
+
+        body {
+            width: 640px;
+            margin: 0 auto;
+            background: #ccc;
+            color: #444;
+        }
+    </style>
+</head>
+
+<body onload="go()">
+    <br>
+    <div id="speccy"></div>
+    <p>
+        This game for the <b>ZX Spectrum 48</b> was made in <b>48 hours</b> for the <b>48th</b> Ludum Dare competition.
+    </p>
+    <p>
+        This page uses <a href="https://github.com/gasman/jsspeccy2">JSSpeccy</a> - a Spectrum emulator in Javascript by
+        Matt “Gasman“ Westcott
+    </p>
+    <p>
+        <a href="https://ldjam.com/events/ludum-dare/48/crown-of-the-mountain-king">Competition entry</a> (vote and
+        comment!)
+    </p>
+    <p>
+        <a href="https://github.com/vilcans/LD48">Project files on Github</a>
+    </p>
+</body>
+
+</html>

@@ -75,7 +75,7 @@ last_key = $+1
     ld (last_key),a
 
     ld a,(paused)
-    ld ($581e),a
+    ;ld ($581e),a
     pop af
     pop bc
     ei

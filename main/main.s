@@ -62,11 +62,6 @@ main:
     call init_screen
     call save_screen_attributes
 
-    ld hl,$481f
-    ld (hl),$ff
-    ld hl,$501f
-    ld (hl),$ff
-
     ld hl,ship_spr_source
     ld de,ship_spr
     call preshift_sprite

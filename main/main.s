@@ -21,6 +21,11 @@ starting_level = level_1_data
 ship_start_x = 10*8+2
 ship_start_row = 40
     ENDIF
+    IF START_AT_LEVEL == 2
+starting_level = level_11_data
+ship_start_x = 12*8+2
+ship_start_row = 119
+    ENDIF
 
 start_scroll_pos = (ship_start_row - ship_sprite_row) * 8
 
@@ -37,6 +42,8 @@ max_land_speed = $70
 
 max_fuel = (fuel_meter_height << 8)
 fuel_usage = 19
+
+final_room_ship_color = 103o
 
 border MACRO
     IF !RELEASE
@@ -149,6 +156,18 @@ each_frame:
     xor a
     ld (velocity_y),a
     ld (velocity_y+1),a
+
+    ld a,(cargo)
+    or a
+    jr nz,.no_pickup
+    ld a,(ship_color)
+    cp final_room_ship_color
+    jr nz,.no_pickup
+    ld a,low_thrust
+    ld (thrust),a ; it's heavy!
+    ld (cargo),a  ; set cargo flag
+.no_pickup:
+
     inc a
     ld (on_ground),a
     ld hl,active_data
@@ -660,6 +679,7 @@ game_start_spawn_data:
 .velocity_y: dw 0
 .on_ground: db 1
 .thrust: dw high_thrust
+.cargo: db 0
 spawn_data_size = $ - game_start_spawn_data
 
 level_data:
@@ -811,6 +831,7 @@ spawn_ship_sprite_x: db 0
 spawn_velocity_y: dw 0
 spawn_on_ground: db 0
 spawn_thrust: dw 0
+spawn_cargo: db 0
     IF $-spawn_data != spawn_data_size
     FAIL "spawn_data wrong size"
     ENDIF
@@ -824,6 +845,7 @@ ship_sprite_x: db 0
 velocity_y: dw 0
 on_ground: db 0
 thrust: dw 0
+cargo: db 0
     IF $-active_data != spawn_data_size
     FAIL "spawn_reset wrong size"
     ENDIF

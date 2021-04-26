@@ -34,7 +34,7 @@ start_scroll_pos = (ship_start_row - ship_sprite_row) * 8
 ship_max_x = map_width * 8 - 16
 
 lives_column = map_width + 1
-lives_row = 21
+lives_row = 16
 
 high_thrust = 9
 low_thrust = 4

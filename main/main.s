@@ -359,10 +359,6 @@ movement:
     dec b
 .not_left:
     rra
-    jp c,.not_down
-    ld de,(thrust)
-    add hl,de
-.not_down:
     rra
     jp c,.not_right
     inc b

@@ -2,6 +2,8 @@
     INCLUDE "sprites.inc"
     INCLUDE "screen.inc"
 
+border_color = 1
+
 map_width = 20
 visible_height_rows = 24
 
@@ -54,6 +56,9 @@ border MACRO
 
     SECTION .text
 main:
+    ld a,border_color
+    out ($fe),a
+
     call init_screen
     call save_screen_attributes
 
@@ -212,6 +217,7 @@ frame_counter = $+1
 sound = $+1
     ld a,0
     and b
+    or border_color
     out ($fe),a
 
     ; Update fuel meter

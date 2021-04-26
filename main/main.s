@@ -2,6 +2,8 @@
     INCLUDE "sprites.inc"
     INCLUDE "screen.inc"
 
+DEBUG_COLLISIONS = 0
+
 border_color = 1
 
 map_width = 20
@@ -561,7 +563,7 @@ movement:
     ld ($433f),a   ; collision mask
     ENDIF
 
-    IF !RELEASE
+    IF DEBUG_COLLISIONS
     ; Debug draw collisions
     ld a,(collisions)
     ld c,a
@@ -599,7 +601,7 @@ movement:
 .addr SET .addr + 1
     ENDR
 
-    ENDIF  ; IF !RELEASE
+    ENDIF  ; IF DEBUG_COLLISIONS
     ret
 
 clamp_scroll_pos:

@@ -28,3 +28,19 @@ endif
 web:
 	$(MAKE) -B -C main RELEASE=1
 	cp main/main.z80 web/$(RELEASE_NAME)-$(VERSION).z80
+
+# Record a movie in Fuse with File->Movie->Record and save as e.g. movie.fmf.
+# Then run `make movie.mp4`. Requires fmfconv and ffmpeg.
+# sudo apt install fuse-emulator-utils
+%.mp4: %.fmf
+	fmfconv $< | ffmpeg -i - -vf scale=960:720 -r 50 \
+		-codec:v h264 -codec:a aac -f mp4 -b:a 128k \
+		-b:v 600k -pix_fmt yuv420p -strict -2 $@
+
+%.gif: %.fmf
+	$(eval TEMPDIR := $(shell mktemp -d))
+	# -f specifies frame rate
+	fmfconv -f 25 $< $(TEMPDIR)/movie.png
+	# -delay is in centiseconds
+	convert -delay 4 -loop 1 -layers removeDups -layers Optimize $(TEMPDIR)/movie*.png $@
+	rm -r $(TEMPDIR)

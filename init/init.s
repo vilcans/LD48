@@ -9,6 +9,8 @@ handler = (handler_page<<8)|handler_page
 interrupt_routine = handler +1
 handler_end = handler + 3
 
+ENABLE_PAUSE = !RELEASE
+
     EXTERN set_interrupt
     EXTERN wait_frame
 
@@ -48,6 +50,7 @@ set_interrupt:
     ei
     ret
 
+    IF ENABLE_PAUSE
 default_interrupt_routine:
     push bc
     push af
@@ -115,6 +118,16 @@ key_changed:
     ret
 
 paused: db 0  ; 0 = unpaused, 1 = forward one frame, $ff = paused
+    ELSE
+default_interrupt_routine:
+    ei
+    reti
+wait_frame:
+    ei
+    halt
+    di
+    ret
+    ENDIF  ; !RELEASE
 
     SECTION .bss,"uR"
     ALIGN 8

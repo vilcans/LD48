@@ -36,41 +36,15 @@ def get_extents(data, firstgid, width, height):
         return left, top, right, bottom
 
 
-# def convert_to_binary(tile_numbers, width, height):
-#    """Convert tile numbers in a list to a binary array"""
-#    array_data = array('B')
-#    for n in tile_numbers:
-#        array_data.append(n)
-#    return array_data
-
-
-def spectrum_attr(tile):
-    bright = (tile >> 3) & 1
-    color = tile & 7
-    return (color, bright)
-
-
 def convert_to_binary(tile_numbers, width, height):
+    """Convert tile numbers in a list to a binary array"""
     array_data = array('B')
-    for row in range(height):
-        for column in range(width):
-            top = tile_numbers[row * width + column]
-            if row < height - 1:
-                bottom = tile_numbers[(row + 1) * width + column]
-            else:
-                bottom = top
-
-            c0, b0 = spectrum_attr(top)
-            c1, b1 = spectrum_attr(bottom)
-
-            # Top row is paper, bottom is ink
-            b = ((b0 | b1) << 6) | c1 | (c0 << 3)
-            array_data.append(b)
-
+    for n in tile_numbers:
+        array_data.append(n)
     return array_data
 
 
-def load_tmx(infile, exclude_layers=None, autocrop=False):
+def load_tmx(infile, exclude_layers=None, autocrop=False, convert_to_binary=convert_to_binary):
     """Get data from a Tiled file (tmx).
 
     Returns (layers, objects) where layer is

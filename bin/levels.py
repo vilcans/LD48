@@ -1,8 +1,35 @@
 import re
+from array import array
 
 from tiled_to_bin import load_tmx
 from io import BytesIO
 from math import ceil, floor
+
+
+def spectrum_attr(tile):
+    bright = (tile >> 3) & 1
+    color = tile & 7
+    return (color, bright)
+
+
+def convert_to_binary(tile_numbers, width, height):
+    array_data = array('B')
+    for row in range(height):
+        for column in range(width):
+            top = tile_numbers[row * width + column]
+            if row < height - 1:
+                bottom = tile_numbers[(row + 1) * width + column]
+            else:
+                bottom = top
+
+            c0, b0 = spectrum_attr(top)
+            c1, b1 = spectrum_attr(bottom)
+
+            # Top row is paper, bottom is ink
+            b = ((b0 | b1) << 6) | c1 | (c0 << 3)
+            array_data.append(b)
+
+    return array_data
 
 
 def main():
@@ -23,7 +50,7 @@ def main():
     args = parser.parse_args()
 
     layers, objects = load_tmx(
-        args.tmx, exclude_layers=re.compile('helper'), autocrop=True)
+        args.tmx, exclude_layers=re.compile('helper'), autocrop=True, convert_to_binary=convert_to_binary)
 
     for layer_num, (name, data, metadata) in enumerate(layers):
         assert metadata['width'] == 20, f"Wrong width on layer {name}: {metadata['width']}"

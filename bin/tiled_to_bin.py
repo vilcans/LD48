@@ -9,7 +9,7 @@ import json
 
 
 def to_tile_number(firstgid, d):
-    d = d & 0x3fffffff   # bit 30 and 31 are mirror x, y flags
+    d = d & 0x1fffffff   # bit 30 and 31 are mirror x, y flags, and bit 29 is rotation
     if d >= firstgid:
         return d - firstgid
     else:

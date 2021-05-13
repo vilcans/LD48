@@ -1,0 +1,11 @@
+loader.bin
+loader.o
+loader.o.lst
+loader.z80
+loader.tap
+main.bin
+main.bin.snappy
+runner.bin
+*sections.txt
+decompress.bin*
+loader.wav

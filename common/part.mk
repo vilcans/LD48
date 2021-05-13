@@ -6,11 +6,10 @@ DEPENDENCIES ?=
 # Dependencies on generated assets.
 GENERATED ?=
 
-MODULE_OBJS = $(SOURCES:.s=.o)
-OBJS = ../init/init.o $(MODULE_OBJS) $(DEPENDENCIES)
+DEPS_TARGETS = $(foreach dep, $(DEPENDENCIES), $(dep).module)
 
-#MODULES = $(PART) $(ADDITIONAL_MODULES)
-#OBJS = $(foreach mod,$(MODULES),../$(mod)/$(mod).o)
+MODULE_OBJS = $(SOURCES:.s=.o)
+OBJS = $(MODULE_OBJS) $(foreach dep, $(DEPENDENCIES), ../$(dep)/$(dep).o)
 
 all: $(MODULE).z80
 
@@ -25,8 +24,8 @@ debug: $(MODULE).z80
 $(OBJS): $(GENERATED)
 
 $(MODULE).bin: $(OBJS) ../link.lds
-	#$(MAKE) -C .. $(ADDITIONAL_MODULES)
-	$(VLINK) -Msections.txt -T../link.lds -brawbin2 -o $@ $(OBJS)
+	$(MAKE) -C .. $(DEPS_TARGETS)
+	$(VLINK) -Msections.txt -T../link.lds -brawbin1 -o $@ $(OBJS)
 
 # Disassemble the assembled code
 disassemble: $(MODULE).bin

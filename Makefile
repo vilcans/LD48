@@ -44,3 +44,6 @@ web:
 	# -delay is in centiseconds
 	convert -delay 4 -loop 1 -layers removeDups -layers Optimize $(TEMPDIR)/movie*.png $@
 	rm -r $(TEMPDIR)
+
+%.module: %
+	$(MAKE) -C $< $<.o

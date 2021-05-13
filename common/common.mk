@@ -15,12 +15,8 @@ LEVEL = 0
 # Must match LOWMEM in link.lds
 LOWMEM = 7800
 MEM_BOTTOM = 4000
-DEFINES = -DLOWMEM='$$${LOWMEM}' -DINVINCIBLE=$(INVINCIBLE) -DRELEASE=$(RELEASE) -DSTART_AT_LEVEL=$(LEVEL)
-
-#	-Dstart_address=\$$$(START_ADDRESS_HEX) \
-#	-Dload_address=\$$$(LOAD_ADDRESS_HEX) \
-#	-DSHOW_FRAMESKIP=$(SHOW_FRAMESKIP) \
-#	-DRELEASE=$(RELEASE) \
+START_PC = 7800
+DEFINES = -DLOWMEM='$$${LOWMEM}' -DSTART_PC='$$${START_PC}' -DINVINCIBLE=$(INVINCIBLE) -DRELEASE=$(RELEASE) -DSTART_AT_LEVEL=$(LEVEL)
 
 ASM_FLAGS = \
 	$(DEFINES) \
@@ -30,7 +26,10 @@ ASM_FLAGS = \
 	$(VASM) $(ASM_FLAGS) -Fvobj -L $@.lst -o $@ $<
 
 %.z80: %.bin
-	python $(BIN_DIR)/snap.py --machine=48 --start='0x${MEM_BOTTOM}' --pc='0x${LOWMEM}' $< $@
+	python $(BIN_DIR)/snap.py --machine=48 --start='0x${MEM_BOTTOM}' --pc='0x${START_PC}' $< $@
 
-%.spr: %.png
-	python $(BIN_DIR)/convert_image.py $< $@
+%.snappy: %
+	cat $< | szip -fk --raw > $@
+
+%.wav: %.tap
+	tape2wav -r 44100 $< $@

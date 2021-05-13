@@ -1,6 +1,6 @@
 MODULE = main
 SOURCES = $(MODULE).s
-DEPENDENCIES = ../sprites/sprites.o ../screentab/screentab.o ../screen/screen.o
+DEPENDENCIES = init sprites screentab screen
 GENERATED = ship.spr \
 	levels.dat \
 	leveldata.inc

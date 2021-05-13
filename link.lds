@@ -11,6 +11,7 @@ SECTIONS {
 
     lowmem : {
         . = LOWMEM;
+        init.o(lowmem)
         *.o(lowmem)
         LOWMEM_END = .;
         ASSERT(. <= HIGHMEM, "Lowmem too large");

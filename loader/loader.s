@@ -5,9 +5,10 @@
 
 	; This code is relocatable,
 	; so we need to figure out where in memory we are
-	ld hl,$fffd
-	ld (hl),$c9  ; ret instruction
-	call $fffd
+	; Put a $c9 (ret instruction at $ffff) and call it.
+	ld a,$c9
+	push af
+	call $ffff
 reference_point:
 	dec sp
 	dec sp

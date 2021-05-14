@@ -1,6 +1,6 @@
 include ../common/common.mk
 
-DECOMPRESS_ADDRESS = 0xfe00
+DECOMPRESS_ADDRESS = 0xff80
 ASM_FLAGS += -Ddecompress_address=$(DECOMPRESS_ADDRESS)
 
 all: loader.tap

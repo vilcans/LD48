@@ -11,6 +11,9 @@ debug: loader.tap
 run: loader.tap
 	$(FUSE) loader.tap
 
+run128: loader.tap
+	$(FUSE) --machine=128 loader.tap
+
 loader.bin: loader.o
 	$(VLINK) -Msections.txt -brawbin1 -o $@ loader.o
 

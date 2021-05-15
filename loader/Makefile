@@ -2,6 +2,7 @@ include ../common/common.mk
 
 DECOMPRESS_ADDRESS = 0xff80
 ASM_FLAGS += -Ddecompress_address=$(DECOMPRESS_ADDRESS)
+SPECTRUM_FILENAME ?= $(RELEASE_NAME)
 
 all: loader.tap
 
@@ -30,7 +31,7 @@ runner.bin: runner.bas
 	zmakebas -r -o $@ $<
 
 loader.tap: loader.bin runner.bin
-	python $(BIN_DIR)/tobasic.py -f DEMO --mc=loader.bin runner.bin $@
+	python $(BIN_DIR)/tobasic.py -f "$(SPECTRUM_FILENAME)" --mc=loader.bin runner.bin $@
 
 ../main/main.bin:
 	$(MAKE) -C ../main main.bin

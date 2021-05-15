@@ -2,6 +2,8 @@
 
 RELEASE_NAME = CrownOfTheMountainKing
 VERSION = 1.1
+# Name of the Spectrum file (will be trimmed to max 10 characters)
+SPECTRUM_FILENAME = Crown LD48
 
 RELEASE = 0
 INVINCIBLE = 0

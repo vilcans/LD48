@@ -1,5 +1,4 @@
-RELEASE_NAME = CrownOfTheMountainKing
-VERSION = 1.1
+include settings.mk
 
 all:
 	$(MAKE) -C main

@@ -1,6 +1,8 @@
-COMMON_DIR = $(abspath $(lastword $(MAKEFILE_LIST)/..))
+COMMON_DIR := $(abspath $(lastword $(MAKEFILE_LIST)/..))
 BASE_DIR := $(abspath $(COMMON_DIR)/..)
 BIN_DIR := $(abspath $(BASE_DIR)/bin)
+
+include $(BASE_DIR)/settings.mk
 
 VASM ?= vasmz80_oldstyle
 VLINK ?= vlink
@@ -8,15 +10,11 @@ VLINK ?= vlink
 FUSE_ARGS=--no-confirm-actions --graphics-filter tv2x --machine 48
 FUSE=fuse $(FUSE_ARGS)
 
-INVINCIBLE = 0
-RELEASE = 0
-LEVEL = 0
-
 # Must match LOWMEM in link.lds
-LOWMEM = 7800
-MEM_BOTTOM = 4000
-START_PC = 7800
-DEFINES = -DLOWMEM='$$${LOWMEM}' -DSTART_PC='$$${START_PC}' -DINVINCIBLE=$(INVINCIBLE) -DRELEASE=$(RELEASE) -DSTART_AT_LEVEL=$(LEVEL)
+LOWMEM ?= 7800
+MEM_BOTTOM ?= 4000
+START_PC ?= 7800
+DEFINES = -DLOWMEM='$$${LOWMEM}' -DSTART_PC='$$${START_PC}' $(EXTRA_DEFINES)
 
 ASM_FLAGS = \
 	$(DEFINES) \

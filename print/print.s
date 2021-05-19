@@ -60,28 +60,37 @@ shift0:
     or (hl)
     ld (hl),a
     jp next_row
-shift7:
-    sra a
-    rr c
-shift6:
-    sra a
-    rr c
 shift5:
-    sra a
-    rr c
+    rla
+    rl c
+shift6:
+    rla
+    rl c
+shift7:
+    rla
+    rl c
+
+    inc l
+    or (hl)
+    ld (hl),a
+    dec l
+    ld a,c
+    or (hl)
+    ld (hl),a
+    jp next_row
 shift4:
-    sra a
+    rra
     rr c
 shift3:
-    sra a
+    rra
     rr c
 shift2:
-    sra a
+    rra
     rr c
 shift1:
-    sra a
+    rra
     rr c
-
+shift_done:
     or (hl)
     ld (hl),a
     inc l

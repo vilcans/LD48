@@ -26,7 +26,9 @@ endif
 .PHONY: web
 web:
 	$(MAKE) -B -C main RELEASE=1
+	$(MAKE) -B -C loader loader.tap RELEASE=1
 	cp main/main.z80 web/$(RELEASE_NAME)-$(VERSION).z80
+	cp loader/loader.tap web/$(RELEASE_NAME)-$(VERSION).tap
 
 # Record a movie in Fuse with File->Movie->Record and save as e.g. movie.fmf.
 # Then run `make movie.mp4`. Requires fmfconv and ffmpeg.

@@ -47,8 +47,6 @@ each_char:
     push hl
     ld b,8
 each_row:
-    push bc
-
     ld a,(de)   ; char bitmap
     inc e
     ld c,0
@@ -101,8 +99,6 @@ shift_done:
 
 next_row:
     inc h
-
-    pop bc
     djnz each_row
 
     pop hl

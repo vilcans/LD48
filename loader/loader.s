@@ -20,7 +20,7 @@ reference_point:
 
 	; Decompress
     ld hl,target_compressed_data
-	ld de,$4000	; decompress to this address
+	ld de,MEM_BOTTOM	; decompress to this address
 	jp decompress_address
 
 copy_start:

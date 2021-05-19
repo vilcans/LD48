@@ -8,59 +8,57 @@ font = $3d00 - 32 * 8
 print:
 ; Print with default spacing (7)
 ; In:
-;   HL = text string, null terminated
-;   DE = screen address
+;   DE = text string, null terminated
+;   HL = screen address
 ; Out:
-;   HL = byte after null terminator
+;   DE = byte after null terminator
     ld a,7
     ;fallthrough
 print_with_spacing:
 ; Print with specific spacing
 ; In:
 ;   A = pixels between characters
-;   HL = text string, null terminated
-;   DE = screen address
+;   DE = text string, null terminated
+;   HL = screen address
 ; Out:
-;   HL = byte after null terminator
+;   DE = byte after null terminator
     ld (spacing),a
     ld ix,shift_jumps
     xor a   ; initial shift
     jp into_loop
 
 each_char:
-    ld a,(hl)  ; character
-    inc hl
+    ld a,(de)  ; character
+    inc de
     or a
     ret z
 
-    push hl
+    push de
 
-    ld l,a
+    ld e,a
     xor a
     REPT 3
-    rl l
+    rl e
     rla
     ENDR
     add >font
-    ld h,a
+    ld d,a
 
-    push de
+    push hl
     ld b,8
 each_row:
     push bc
 
-    ld a,(hl)   ; char bitmap
-    inc l
+    ld a,(de)   ; char bitmap
+    inc e
     ld c,0
 
 jr_amount = $+1
     jr jr_start
 jr_start:
 shift0:
-    ex de,hl
     or (hl)
     ld (hl),a
-    ex de,hl
     jp next_row
 shift7:
     sra a
@@ -84,24 +82,22 @@ shift1:
     sra a
     rr c
 
-    ld b,a
-    ld a,(de)
-    or b
-    ld (de),a
-    inc e
-    ld a,(de)
+    or (hl)
+    ld (hl),a
+    inc l
+    ld a,(hl)
     or c
-    ld (de),a
-    dec e
+    ld (hl),a
+    dec l
 
 next_row:
-    inc d
+    inc h
 
     pop bc
     djnz each_row
 
-    pop de
     pop hl
+    pop de
 
     ld a,(shift)
 spacing = $+1
@@ -110,7 +106,7 @@ spacing = $+1
     cp 8
     jp c,.not_next_byte
     sub 7
-    inc e
+    inc l
     jr .compare
 .not_next_byte:
 into_loop:

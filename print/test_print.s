@@ -14,13 +14,13 @@
     inc d
     djnz .lp
 
-    ld hl,text
-    ld de,$4000
+    ld hl,$4000
+    ld de,text
     ld ($1000),a
     call print
 
-    ld hl,text2
-    ld de,$4040
+    ld hl,$4040
+    ld de,text2
     ld a,9
     call print_with_spacing
 

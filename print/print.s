@@ -113,8 +113,8 @@ spacing = $+1
     add 0
 .compare:
     cp 8
-    jp c,.not_next_byte
-    sub 7
+    jr c,.not_next_byte
+    sub 8
     inc l
     jr .compare
 .not_next_byte:

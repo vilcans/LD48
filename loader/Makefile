@@ -4,6 +4,8 @@ DECOMPRESS_ADDRESS = 0xff80
 ASM_FLAGS += -Ddecompress_address=$(DECOMPRESS_ADDRESS)
 SPECTRUM_FILENAME ?= $(RELEASE_NAME)
 
+MAIN_MODULE ?= main
+
 all: loader.tap
 
 debug: loader.tap
@@ -24,7 +26,7 @@ decompress.bin: decompress.o ../snappy/snappy.s
 	$(MAKE) -C ../snappy snappy.o
 	$(VLINK) -Mdecompress-sections.txt -Ttext $(DECOMPRESS_ADDRESS) -brawbin1 -o $@ decompress.o ../snappy/snappy.o
 
-main.bin: ../main/main.bin
+main.bin: ../$(MAIN_MODULE)/$(MAIN_MODULE).bin
 	cp $< $@
 
 runner.bin: runner.bas
@@ -33,5 +35,5 @@ runner.bin: runner.bas
 loader.tap: loader.bin runner.bin
 	python $(BIN_DIR)/tobasic.py -f "$(SPECTRUM_FILENAME)" --mc=loader.bin runner.bin $@
 
-../main/main.bin:
+../$(MAIN_MODULE)/$(MAIN_MODULE).bin:
 	$(MAKE) -C ../main main.bin

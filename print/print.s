@@ -1,9 +1,48 @@
     EXTERN print
     EXTERN print_with_spacing
+    EXTERN rich_print
 
 font = $3d00 - 32 * 8
 
     SECTION .text
+
+rich_print:
+; Print several lines.
+; In:
+;   DE = text string, each line null terminated, ending with $ff
+;   HL = screen address
+
+    ld a,7
+    ld (spacing),a
+
+    ld a,(de)
+.each_string:
+    cp 32
+    jr z,.next_line
+    jr nc,.no_starting_control
+    inc de
+    or a
+    jr z,.next_line
+    ld (spacing),a
+.no_starting_control:
+    push hl
+    call print_with_current_spacing
+    pop hl
+
+.next_line:
+    ld a,l
+    add $20
+    ld l,a
+    jr nc,.not_next_third
+    ld a,h
+    add 8
+    ld h,a
+.not_next_third:
+
+    ld a,(de)
+    or a
+    jp p,.each_string
+    ret
 
 print:
 ; Print with default spacing (7)
@@ -23,6 +62,7 @@ print_with_spacing:
 ; Out:
 ;   DE = byte after null terminator
     ld (spacing),a
+print_with_current_spacing:
     ld ix,shift_jumps
     xor a   ; initial shift
     jp into_loop

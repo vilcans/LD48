@@ -1,18 +1,23 @@
     EXTERN show_intro
+    EXTERN show_text
 
     SECTION .text
 
 show_intro:
+    ld de,intro_text
+show_text:
+    push de
     xor a
     out ($fe),a
+    call wait_frame
     call fill_attributes
 
     ld hl,$4000
     ld de,$4001
-    ld bc,$1800
+    ld bc,$17ff
     ldir
 
-    ld de,intro_text
+    pop de  ; text to show
     ld hl,$4000
     call rich_print
 
@@ -28,7 +33,9 @@ show_intro:
     ld a,7
 fade_out:
     dec a
-    halt
+    push af
+    call wait_frame
+    pop af
     call fill_attributes
     or a
     jr nz,fade_out

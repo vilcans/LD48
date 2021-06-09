@@ -1,4 +1,5 @@
     EXTERN intro_text
+    EXTERN pickup_text
 
     SECTION lowmem
 
@@ -28,4 +29,12 @@ intro_text:
     db "W = thrust",0
     db 0
     db 7,"Press ENTER to continue",0
+    db $ff
+
+pickup_text:
+    db 9,"YOU FOUND THE CROWN!",0
+    db 0
+    db 7,"But it is very heavy!",0
+    db 0
+    db "Can you bring it back to the surface?",0
     db $ff

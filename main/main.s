@@ -165,10 +165,7 @@ each_frame:
     jr nz,.no_pickup
     ld a,(ship_color)
     cp final_room_ship_color
-    jr nz,.no_pickup
-    ld a,low_thrust
-    ld (thrust),a ; it's heavy!
-    ld (cargo),a  ; set cargo flag
+    call z,pickup
 .no_pickup:
 
     inc a
@@ -688,6 +685,19 @@ bits_per_scroll:
     db %01111111
 
     SECTION lowmem
+
+pickup:
+; Player picks up the crown
+
+    ld de,pickup_text
+    call show_text
+
+    ld a,low_thrust
+    ld (thrust),a ; it's heavy!
+    ld (cargo),a  ; set cargo flag
+
+    jp show_game_screen
+
 skip_to_next_from_height:
     ; Skip exit height
     inc de

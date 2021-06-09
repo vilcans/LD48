@@ -5,6 +5,8 @@
 
 show_intro:
     ld de,intro_text
+    call show_text
+    ld de,instructions_text
 show_text:
     push de
     xor a

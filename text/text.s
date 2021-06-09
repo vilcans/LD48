@@ -1,5 +1,7 @@
     EXTERN intro_text
     EXTERN pickup_text
+    EXTERN completed_text
+    EXTERN press_key_text
 
     SECTION lowmem
 
@@ -27,8 +29,6 @@ intro_text:
     db 6,"A = left",0
     db "D = right",0
     db "W = thrust",0
-    db 0
-    db 7,"Press ENTER to continue",0
     db $ff
 
 pickup_text:
@@ -36,5 +36,20 @@ pickup_text:
     db 0
     db 7,"But it is very heavy!",0
     db 0
-    db "Can you bring it back to the surface?",0
+    db "Can you bring it back to",0
+    db "the surface?",0
+    db $ff
+
+completed_text:
+    db 9,"SUCCESS!",0
+    db 0
+    db 7,"You brought the crown",0
+    db "back to the surface!",0
+    db 0
+    db "You are a very skilled",0
+    db "hovercraft pilot.",0
+    db $ff
+
+press_key_text:
+    db 7,"Press ENTER to continue",0
     db $ff

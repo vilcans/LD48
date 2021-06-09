@@ -47,6 +47,7 @@ max_land_speed = $70
 max_fuel = (fuel_meter_height << 8)
 fuel_usage = 19
 
+starting_room_ship_color = 117o
 final_room_ship_color = 103o
 
 border MACRO
@@ -59,11 +60,13 @@ border MACRO
     SECTION .text
 main:
     call init_screen
-    call show_intro
 
     ld hl,ship_spr_source
     ld de,ship_spr
     call preshift_sprite
+
+restart:
+    call show_intro
 
     ld hl,game_start_spawn_data
     ld de,spawn_data
@@ -167,6 +170,13 @@ each_frame:
     cp final_room_ship_color
     call z,pickup
 .no_pickup:
+    ld a,(cargo)
+    or a
+    jr z,.no_cargo
+    ld a,(ship_color)
+    cp starting_room_ship_color
+    jp z,completed
+.no_cargo:
 
     inc a
     ld (on_ground),a
@@ -685,6 +695,11 @@ bits_per_scroll:
     db %01111111
 
     SECTION lowmem
+
+completed:
+    ld de,completed_text
+    call show_text
+    jp restart
 
 pickup:
 ; Player picks up the crown

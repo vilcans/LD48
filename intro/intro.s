@@ -21,6 +21,10 @@ show_text:
     ld hl,$4000
     call rich_print
 
+    ld de,press_key_text
+    ld hl,$5000+7*$20
+    call rich_print
+
     xor a
 .fade_in:
     inc a

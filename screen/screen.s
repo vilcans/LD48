@@ -11,11 +11,6 @@
     SECTION lowmem
 
 init_screen:
-    ld hl,$4000
-    ld de,game_screen
-    ld bc,$1800+$300
-    ldir
-
     ld hl,screen_addresses
     ld de,$4000 + map_left_edge
     jp create_screen_table
@@ -134,11 +129,6 @@ fuel_meter_bitmap:
     ds fuel_meter_height - 2, %01111110 ^ $ff
     db %00111100 ^ $ff
 
-    SECTION screen
-    INCBIN "screen.scr"
-
-    SECTION .bss,"uR"
 game_screen:
-    ds $1800
-game_screen_attributes:
-    ds $300
+game_screen_attributes = game_screen+$1800
+    INCBIN "screen.scr"

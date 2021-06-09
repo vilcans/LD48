@@ -1,9 +1,9 @@
 # Project-specific settings
 
 RELEASE_NAME = CrownOfTheMountainKing
-VERSION = 1.1
+VERSION = 1.2
 # Name of the Spectrum file (will be trimmed to max 10 characters)
-SPECTRUM_FILENAME = Crown LD48
+SPECTRUM_FILENAME = Crown $(VERSION)
 
 RELEASE = 0
 INVINCIBLE = 0

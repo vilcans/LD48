@@ -5,6 +5,9 @@
 intro_text:
     ;  '------------------------------------'
     db 9,'CROWN OF THE MOUNTAIN KING',0
+    db 5,'v'
+    INCBIN "version.txt"
+    db 0
     db 0
     db 7,"Rumor has it that the long lost",0
     db "crown of the Mountain King can",0

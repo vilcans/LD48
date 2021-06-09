@@ -657,14 +657,6 @@ kill:
 
     jp start_life
 
-fill_attributes:
-    ld hl,$5800
-    ld de,$5801
-    ld (hl),a
-    ld bc,$2ff
-    ldir
-    ret
-
 copy_spawn_data:
     ; The correct size, from HL to DE
     ld bc,spawn_data_size

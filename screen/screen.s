@@ -2,6 +2,7 @@
     EXTERN invert_screen
     EXTERN show_game_screen
     EXTERN restore_screen_attributes
+    EXTERN fill_attributes
     EXTERN draw_fuel_meter
     EXTERN draw_fuel_meter_part
 
@@ -121,6 +122,15 @@ restore_screen_attributes:
     ld hl,game_screen_attributes
     ld de,$5800
     ld bc,$300
+    ldir
+    ret
+
+fill_attributes:
+; Fill attributes with A register
+    ld hl,$5800
+    ld de,$5801
+    ld bc,$2ff
+    ld (hl),a
     ldir
     ret
 

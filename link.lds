@@ -1,6 +1,6 @@
 SECTIONS {
     RAMTOP = 0xfefe;  /* must match handler_page in init.s */
-    LOWMEM = 0x7800;  /* must match LOWMEM in common.mk */
+    LOWMEM = 0x5b00;  /* must match LOWMEM in common.mk */
     /* screentable hardcoded to be at $8000, $180 bytes */
     HIGHMEM = 0x8180;
 

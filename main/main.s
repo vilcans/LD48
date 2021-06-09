@@ -58,9 +58,6 @@ border MACRO
 
     SECTION .text
 main:
-    ld a,border_color
-    out ($fe),a
-
     call init_screen
     call show_intro
 
@@ -73,6 +70,8 @@ main:
     call copy_spawn_data
 
     call show_game_screen
+    ld a,border_color
+    out ($fe),a
 
     ;ld a,(ship_color)
     ld bc,((lives_column * 8 + 4) << 8) | (lives_row * 8 + 4)

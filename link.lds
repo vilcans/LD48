@@ -16,6 +16,10 @@ SECTIONS {
         LOWMEM_END = .;
         ASSERT(. <= HIGHMEM, "Lowmem too large");
     }
+    lowbss : {
+        *.o(lowbss)
+        ASSERT(. <= HIGHMEM, "lowbss too large");
+    }
 
     .text : {
         . = HIGHMEM;

@@ -1,6 +1,6 @@
     EXTERN init_screen
     EXTERN invert_screen
-    EXTERN save_screen_attributes
+    EXTERN show_game_screen
     EXTERN restore_screen_attributes
     EXTERN draw_fuel_meter
     EXTERN draw_fuel_meter_part
@@ -11,10 +11,14 @@
     SECTION lowmem
 
 init_screen:
+    ld hl,$4000
+    ld de,game_screen
+    ld bc,$1800+$300
+    ldir
+
     ld hl,screen_addresses
     ld de,$4000 + map_left_edge
-    call create_screen_table
-    ret
+    jp create_screen_table
 
 draw_fuel_meter_part:
 ; Draw one pixel of the fuel meter
@@ -111,15 +115,15 @@ invert_screen:
 
     ret
 
-save_screen_attributes:
-    ld hl,$5800
-    ld de,saved_attributes
-    ld bc,$300
+show_game_screen:
+    ld hl,game_screen
+    ld de,$4000
+    ld bc,$1800+$300
     ldir
     ret
 
 restore_screen_attributes:
-    ld hl,saved_attributes
+    ld hl,game_screen_attributes
     ld de,$5800
     ld bc,$300
     ldir
@@ -134,5 +138,7 @@ fuel_meter_bitmap:
     INCBIN "screen.scr"
 
     SECTION .bss,"uR"
-saved_attributes:
+game_screen:
+    ds $1800
+game_screen_attributes:
     ds $300

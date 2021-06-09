@@ -62,7 +62,7 @@ main:
     out ($fe),a
 
     call init_screen
-    call save_screen_attributes
+    call show_intro
 
     ld hl,ship_spr_source
     ld de,ship_spr
@@ -71,6 +71,8 @@ main:
     ld hl,game_start_spawn_data
     ld de,spawn_data
     call copy_spawn_data
+
+    call show_game_screen
 
     ;ld a,(ship_color)
     ld bc,((lives_column * 8 + 4) << 8) | (lives_row * 8 + 4)

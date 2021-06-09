@@ -55,7 +55,7 @@ default_interrupt_routine:
     push bc
     push af
 
-    ld a,$bf
+    ld a,$7f
     in a,($fe)  ; read key row: H J K L enter
     ld c,a  ; C = current keys
 

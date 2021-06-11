@@ -3,3 +3,4 @@ text.o
 text.o.lst
 text.z80
 version_*.txt
+version.txt

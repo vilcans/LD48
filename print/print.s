@@ -72,8 +72,8 @@ each_char:
     inc de
     or a
     ret z
-
     push de
+    jp m,special_character
 
     ld e,a
     xor a
@@ -84,6 +84,7 @@ each_char:
     add >font
     ld d,a
 
+special_character_return:
     push hl
     ld b,8
 each_row:
@@ -163,6 +164,21 @@ shift = $+2
 
     jp each_char
 
+special_character:
+    ex de,hl
+    ld hl,special_bitmaps-$80*8
+    ld c,a
+    xor a
+    REPT 3
+    rl c
+    rla
+    ENDR
+    ld b,a
+    add hl,bc
+    ex de,hl
+
+    jp special_character_return
+
 shift_jumps:
     db shift0-jr_start
     db shift1-jr_start
@@ -172,3 +188,13 @@ shift_jumps:
     db shift5-jr_start
     db shift6-jr_start
     db shift7-jr_start
+
+special_bitmaps:
+    db %11110000
+    db %11110000
+    db %11110000
+    db %11110000
+    db %00001111
+    db %00001111
+    db %00001111
+    db %00001111

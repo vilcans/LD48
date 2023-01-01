@@ -8,12 +8,12 @@ import re
 import json
 
 
-def to_tile_number(firstgid, d):
+def to_tile_number(firstgid, d, default=0):
     d = d & 0x1fffffff   # bit 30 and 31 are mirror x, y flags, and bit 29 is rotation
     if d >= firstgid:
         return d - firstgid
     else:
-        return 0
+        return default
 
 
 def get_extents(data, firstgid, width, height):
@@ -36,15 +36,12 @@ def get_extents(data, firstgid, width, height):
         return left, top, right, bottom
 
 
-def convert_to_binary(tile_numbers, width, height):
-    """Convert tile numbers in a list to a binary array"""
-    array_data = array('B')
-    for n in tile_numbers:
-        array_data.append(n)
-    return array_data
-
-
-def load_tmx(infile, exclude_layers=None, autocrop=False, convert_to_binary=convert_to_binary):
+def load_tmx(
+    infile,
+    exclude_layers=None,
+    autocrop=False,
+    empty_tile_value=0,
+):
     """Get data from a Tiled file (tmx).
 
     Returns (layers, objects) where layer is
@@ -98,11 +95,10 @@ def load_tmx(infile, exclude_layers=None, autocrop=False, convert_to_binary=conv
         print(
             f'Layer "{name}": {width}x{height} left={left} top={top} right={right} bottom={bottom}')
         tile_numbers = [
-            to_tile_number(firstgid, data[row * width + column])
+            to_tile_number(firstgid, data[row * width + column], empty_tile_value)
             for row in range(top, bottom)
             for column in range(left, right)
         ]
-        bin_data = convert_to_binary(tile_numbers, right - left, bottom - top)
         metadata = {
             'top': top,
             'left': left,
@@ -110,7 +106,7 @@ def load_tmx(infile, exclude_layers=None, autocrop=False, convert_to_binary=conv
             'height': bottom - top,
             'properties': properties
         }
-        layers.append((name, bin_data, metadata))
+        layers.append((name, tile_numbers, metadata))
 
     objects = {}
     for object_group in tree.findall('objectgroup'):

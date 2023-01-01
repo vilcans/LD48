@@ -50,17 +50,17 @@ def main():
     args = parser.parse_args()
 
     layers, objects = load_tmx(
-        args.tmx, exclude_layers=re.compile('helper'), autocrop=True, convert_to_binary=convert_to_binary)
+        args.tmx, exclude_layers=re.compile('helper'), autocrop=True)
 
-    for layer_num, (name, data, metadata) in enumerate(layers):
+    for layer_num, (name, _data, metadata) in enumerate(layers):
         assert metadata['width'] == 20, f"Wrong width on layer {name}: {metadata['width']}"
         print(f'Layer {layer_num}: {name}')
 
     bin_out = BytesIO()
     data_offsets = []
-    for _name, data, _metadata in layers:
+    for _name, data, metadata in layers:
         data_offsets.append(bin_out.tell())
-        bin_out.write(data)
+        bin_out.write(convert_to_binary(data, metadata['width'], metadata['height']))
 
     connections = []
 

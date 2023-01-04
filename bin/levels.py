@@ -1,7 +1,7 @@
 import re
 from array import array
 
-from convert_tiled import load_tmx
+from tiled import load_tmx
 from io import BytesIO
 from math import ceil, floor
 

@@ -20,11 +20,13 @@ run: $(MODULE).z80
 debug: $(MODULE).z80
 	$(FUSE) --snapshot $(MODULE).z80 --debugger-command 'br write 0x1000'
 
-# Objects depend on generated assets
-$(OBJS): $(GENERATED)
+# Objects depend on generated assets for this and other modules
+$(OBJS): $(GENERATED) $(DEPS_TARGETS)
+
+%.module:
+	$(MAKE) -C .. $@
 
 $(MODULE).bin: $(OBJS) ../link.lds
-	$(MAKE) -C .. $(DEPS_TARGETS)
 	$(VLINK) -Msections.txt -T../link.lds -brawbin1 -o $@ $(OBJS)
 
 # Disassemble the assembled code

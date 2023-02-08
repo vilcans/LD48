@@ -31,3 +31,6 @@ ASM_FLAGS = \
 
 %.wav: %.tap
 	tape2wav -r 44100 $< $@
+
+%.spr: %.png
+	python $(BIN_DIR)/convert_image.py $< $@

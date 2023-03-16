@@ -3,7 +3,7 @@ SOURCES = $(MODULE).s
 DEPENDENCIES =
 GENERATED = version.txt
 
-include ../common/part.mk
+include ../common/module.mk
 
 VERSION_FILE = version_$(VERSION).txt
 

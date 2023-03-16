@@ -3,4 +3,4 @@ SOURCES = $(MODULE).s
 DEPENDENCIES = init print text
 GENERATED =
 
-include ../common/part.mk
+include ../common/module.mk

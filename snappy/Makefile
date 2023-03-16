@@ -3,7 +3,7 @@ SOURCES = test_snappy.s $(MODULE).s
 DEPENDENCIES = init
 GENERATED = test.bin test.bin.snappy
 
-include ../common/part.mk
+include ../common/module.mk
 
 test.bin: gentest.py
 	python gentest.py >$@

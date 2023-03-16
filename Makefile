@@ -12,16 +12,16 @@ debug:
 disassemble:
 	$(MAKE) -C main disassemble
 
-# Create a new part from template.
-# Usage example to create new part xyz: make newpart PART=xyz
-newpart:
-ifndef PART
-	$(error PART not defined)
+# Create a new module from template.
+# Usage example to create new module xyz: make newmod MODULE=xyz
+newmod:
+ifndef MODULE
+	$(error MODULE not defined)
 endif
-	mkdir $(PART)
-	sed 's/template/$(PART)/g' template/template.s >$(PART)/$(PART).s
-	sed 's/template/$(PART)/g' template/Makefile >$(PART)/Makefile
-	sed 's/template/$(PART)/g' template/gitignore >$(PART)/.gitignore
+	mkdir $(MODULE)
+	sed 's/template/$(MODULE)/g' template/template.s >$(MODULE)/$(MODULE).s
+	sed 's/template/$(MODULE)/g' template/Makefile >$(MODULE)/Makefile
+	sed 's/template/$(MODULE)/g' template/gitignore >$(MODULE)/.gitignore
 
 .PHONY: web
 web:

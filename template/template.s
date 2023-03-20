@@ -1,8 +1,8 @@
-    SECTION .text
+	SECTION .text
 template:
-    ld hl,$5800
+	ld hl,$5800
 loop:
-    inc (hl)
-    jp loop
+	inc (hl)
+	jp loop
 
-    SECTION .bss,"uR"
+	SECTION .bss,"uR"

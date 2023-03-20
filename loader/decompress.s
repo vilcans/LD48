@@ -1,2 +1,2 @@
-    call snappy_decompress
-    jp START_PC
+	call snappy_decompress
+	jp START_PC

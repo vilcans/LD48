@@ -1,4 +1,4 @@
-    SECTION .text
+	SECTION .text
 
 reference_point:
 	di
@@ -19,22 +19,22 @@ reference_point:
 	lddr
 
 	; Decompress
-    ld hl,target_compressed_data
+	ld hl,target_compressed_data
 	ld de,MEM_BOTTOM	; decompress to this address
 	jp decompress_address
 
 copy_start:
 
 compressed_data:
-    INCBIN "main.bin.snappy"
-    db 3
+	INCBIN "main.bin.snappy"
+	db 3
 compressed_size = $-compressed_data
 
 target_compressed_data = decompress_address - compressed_size
 
 decompress:
 	; After copying, this code will be at decompress_address
-    INCBIN "decompress.bin"
+	INCBIN "decompress.bin"
 decompress_size = $-decompress
 
 copy_end:

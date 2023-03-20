@@ -1,10 +1,10 @@
-    EXTERN create_screen_table
+	EXTERN create_screen_table
 	EXTERN screen_table
 	EXTERN create_screen_table_with_skip
 
 	INCLUDE memory.inc
 
-    SECTION lowmem
+	SECTION lowmem
 
 ; Create screen table
 ; Input:

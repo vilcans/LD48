@@ -42,15 +42,14 @@ instructions_text:
     db "don't crash into something above.",0
     db 0
     db "Apply a little thrust now and then",0
-    db "while falling so you don't fall so",0
-    db "fast that you can't react.",0
+    db "while falling so you have time to",0
+    db "react.",0
     db 0
     db "Do not touch anything except the",0
-    db "white landing pads.",0
-    db "If you touch down gently on one of",0
-    db "those, your fuel will berefilled,",0
-    db "and you will start on that pad",0
-    db "if you crash.",0
+    db "white landing pads. If you touch",0
+    db "down gently on one of those, your",0
+    db "fuel will be refilled, and you will",0
+    db "start on that pad if you crash.",0
     db 0
     db 8,"Keyboard controls:",0
     db 6,"A = left, D = right, W = thrust",0

@@ -13,7 +13,7 @@ intro_text:
     INCBIN "version.txt"
     db 0
     db 7
-    db 127," Martin Vilcans 2021",0
+    db 127," Martin Vilcans 2023",0
     db 0
     db "Rumor has it that the long lost",0
     db "crown of the Mountain King can",0
